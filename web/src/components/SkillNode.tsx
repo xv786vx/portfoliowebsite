@@ -50,6 +50,69 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   const baseRadius = node.level === 0 ? 70 : node.level === 1 ? 45 : node.level === 2 ? 30 : 30;
   const radius = baseRadius * scale;
   
+  // Calculate font size based on node level and radius with better spacing
+  const getFontSize = () => {
+    let baseFontSize;
+    switch (node.level) {
+      case 0: // Center node - needs more padding inside the pentagon
+        baseFontSize = radius * 0.26; // Reduced from 0.25 to 0.18 for better spacing
+        break;
+      case 1: // First ring - hexagon has good space
+        baseFontSize = radius * 0.28; // Reduced from 0.32 to 0.28
+        break;
+      case 2: // Outer ring - circles are smaller
+        baseFontSize = radius * 0.36; // Reduced from 0.38 to 0.32
+        break;
+      default:
+        baseFontSize = radius * 0.28;
+    }
+    
+    // Ensure minimum font size and scale appropriately
+    return Math.max(baseFontSize, 8);
+  };
+  
+  // Calculate text positioning and wrapping based on node shape
+  const getTextConfig = () => {
+    switch (node.level) {
+      case 0: // Center pentagon - needs tighter wrapping area for multi-line text
+        return {
+          width: radius * 1.8, // Narrower width forces wrapping for longer text
+          height: radius * 1.4, // Height constraint for pentagon interior
+          offsetX: radius * 0.9,
+          offsetY: radius * 0.7, // Offset for vertical centering
+          y: y,
+          lineHeight: 1.1, // Tighter line spacing for pentagon
+        };
+      case 1: // Hexagon - good horizontal and vertical space
+        return {
+          width: radius * 2.4,
+          height: radius * 1.6,
+          offsetX: radius * 1.2,
+          offsetY: radius * 0.8,
+          y: y,
+          lineHeight: 1.2,
+        };
+      case 2: // Circle - standard spacing with wrapping
+        return {
+          width: radius * 2.8,
+          height: radius * 1.8,
+          offsetX: radius * 1.4,
+          offsetY: radius * 0.9,
+          y: y,
+          lineHeight: 1.2,
+        };
+      default:
+        return {
+          width: radius * 2.8,
+          height: radius * 1.8,
+          offsetX: radius * 1.4,
+          offsetY: radius * 0.9,
+          y: y,
+          lineHeight: 1.2,
+        };
+    }
+  };
+  
   // Custom SVG path definitions (scaled to fit radius)
   const svgPaths = {
     // Hexagon for level 1 nodes
@@ -189,19 +252,24 @@ const SkillNode: React.FC<SkillNodeProps> = ({
       {/* Main node shape - different based on level */}
       {renderNodeShape()}
       
-      {/* Node label */}
+      {/* Node label with text wrapping */}
       <Text
         x={x}
-        y={y-5}
+        y={getTextConfig().y}
         text={node.label}
-        fontSize={Math.max(12 * scale, 10)}
-        fontFamily="Lusitana, serif"
+        fontSize={getFontSize()}
+        fontFamily="PT Sans, sans-serif"
         fontStyle="bold"
         fill="#ffffff"
         align="center"
         verticalAlign="middle"
-        width={radius * 4}
-        offsetX={radius * 2}
+        width={getTextConfig().width}
+        height={getTextConfig().height}
+        offsetX={getTextConfig().offsetX}
+        offsetY={getTextConfig().offsetY}
+        lineHeight={getTextConfig().lineHeight}
+        wrap="word" // Enable word wrapping
+        ellipsis={false} // Don't truncate with "..."
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

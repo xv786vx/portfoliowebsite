@@ -33,8 +33,8 @@ interface SkillTreeState {
 const initialNodes: SkillNode[] = [
   {
     id: "center",
-    label: "Your Name",
-    description: "Full Stack Developer",
+    label: "Firas Adnan Jalil",
+    description: "Aspiring Software Engineer",
     position: { x: 0, y: 0 },
     level: 0,
     isActive: true,
@@ -45,7 +45,7 @@ const initialNodes: SkillNode[] = [
   },
   {
     id: "projects",
-    label: "My Projects",
+    label: "Projects",
     description: "Portfolio & Commercial Work",
     position: { x: 0, y: -150 },
     level: 1,
@@ -58,7 +58,7 @@ const initialNodes: SkillNode[] = [
   },
   {
     id: "experience",
-    label: "Work History",
+    label: "Experience",
     description: "5+ Years Development",
     position: { x: 150, y: 0 },
     level: 1,
@@ -71,7 +71,7 @@ const initialNodes: SkillNode[] = [
   },
   {
     id: "skills",
-    label: "Tech Stack",
+    label: "Skills",
     description: "Languages & Frameworks",
     position: { x: 0, y: 150 },
     level: 1,

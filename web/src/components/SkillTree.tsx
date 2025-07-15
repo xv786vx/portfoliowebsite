@@ -70,7 +70,18 @@ const SkillTree: React.FC = () => {
   return (
     <motion.div
       ref={containerRef}
-      className="fixed inset-0 w-screen h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden"
+      className="fixed inset-0 w-screen h-screen bg-black relative overflow-hidden"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        backgroundColor: '#000000',
+        margin: 0,
+        padding: 0,
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
@@ -121,21 +132,21 @@ const ActiveNodePanel: React.FC = () => {
   return (
     <motion.div
       style={panelStyle}
-      className="bg-black/80 backdrop-blur-sm rounded-lg p-4 max-w-sm border border-gray-600/50 pointer-events-auto"
+      className="bg-red-500 border-4 border-yellow-400 p-6 rounded-xl text-white shadow-2xl"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <h3 className="text-xl font-bold text-white mb-2">{activeNode.label}</h3>
+      <h3 className="text-2xl font-bold text-white mb-4 font-ptsans">{activeNode.label}</h3>
       {activeNode.description && (
-        <p className="text-gray-300 text-sm mb-3">{activeNode.description}</p>
+        <p className="text-gray-300 text-base mb-4">{activeNode.description}</p>
       )}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3 mt-4">
         <div 
-          className="w-3 h-3 rounded-full"
+          className="w-4 h-4 rounded-full"
           style={{ backgroundColor: activeNode.strokeColor || activeNode.color }}
         />
-        <span className="text-xs text-gray-400">
+        <span className="text-sm text-gray-400">
           Level {activeNode.level} Node
         </span>
       </div>
