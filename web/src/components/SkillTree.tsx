@@ -70,7 +70,7 @@ const SkillTree: React.FC = () => {
   return (
     <motion.div
       ref={containerRef}
-      className="fixed inset-0 w-screen h-screen bg-black relative overflow-hidden"
+      className="fixed inset-0 w-screen h-screen bg-black overflow-hidden"
       style={{
         position: 'fixed',
         top: 0,

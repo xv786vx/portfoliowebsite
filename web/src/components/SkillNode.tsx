@@ -18,6 +18,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
 }) => {
   const { setActiveNode, setHoveredNode } = useSkillTreeStore();
   const glowRingRef = useRef<Konva.Circle>(null);
+  const nodeShapeRef = useRef<Konva.Group>(null);
   
   const x = centerX + node.position.x * scale;
   const y = centerY + node.position.y * scale;
@@ -45,9 +46,68 @@ const SkillNode: React.FC<SkillNodeProps> = ({
       }
     };
   }, [node.isActive, node.isHovered]);
+
+  // Animate the node shape rotation when active
+  useEffect(() => {
+    if (!nodeShapeRef.current) return;
+    
+    const shape = nodeShapeRef.current;
+    const layer = shape.getLayer();
+    
+    let animationId: number;
+    
+    if (node.isActive) {
+      // Continuous rotation when active
+      const animate = () => {
+        shape.rotate(-0.05); // 0.05 degrees per frame for slower, more mystical rotation
+        layer?.batchDraw();
+        animationId = requestAnimationFrame(animate);
+      };
+      animationId = requestAnimationFrame(animate);
+    } else {
+      // Smooth transition back to original rotation when deactivated
+      const currentRotation = shape.rotation();
+      const targetRotation = 0; // Original rotation
+      const rotationDifference = targetRotation - currentRotation;
+      
+      // Normalize the rotation difference to find the shortest path
+      let normalizedDiff = rotationDifference % 360;
+      if (normalizedDiff > 180) normalizedDiff -= 360;
+      if (normalizedDiff < -180) normalizedDiff += 360;
+      
+      if (Math.abs(normalizedDiff) > 0.1) { // Only animate if there's a significant difference
+        const animate = () => {
+          const current = shape.rotation();
+          const remaining = targetRotation - current;
+          
+          // Normalize remaining rotation
+          let normalizedRemaining = remaining % 360;
+          if (normalizedRemaining > 180) normalizedRemaining -= 360;
+          if (normalizedRemaining < -180) normalizedRemaining += 360;
+          
+          if (Math.abs(normalizedRemaining) > 0.1) {
+            shape.rotate(normalizedRemaining * 0.08); // Smooth easing
+            layer?.batchDraw();
+            animationId = requestAnimationFrame(animate);
+          } else {
+            // Snap to exact position when close enough
+            shape.rotation(targetRotation);
+            layer?.batchDraw();
+          }
+        };
+        animationId = requestAnimationFrame(animate);
+      }
+    }
+    
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [node.isActive]);
   
   // Base radius depends on level (center node is larger)
-  const baseRadius = node.level === 0 ? 70 : node.level === 1 ? 45 : node.level === 2 ? 30 : 30;
+  const baseRadius = node.level === 0 ? 80 : node.level === 1 ? 55 : node.level === 2 ? 40 : 30;
   const radius = baseRadius * scale;
   
   // Calculate font size based on node level and radius with better spacing
@@ -55,7 +115,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
     let baseFontSize;
     switch (node.level) {
       case 0: // Center node - needs more padding inside the pentagon
-        baseFontSize = radius * 0.26; // Reduced from 0.25 to 0.18 for better spacing
+        baseFontSize = radius * 0.238; // Reduced from 0.25 to 0.18 for better spacing
         break;
       case 1: // First ring - hexagon has good space
         baseFontSize = radius * 0.28; // Reduced from 0.32 to 0.28
@@ -161,8 +221,8 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   // Render different shapes based on level
   const renderNodeShape = () => {
     const commonProps = {
-      x,
-      y,
+      x: 0, // Relative to the Group center
+      y: 0, // Relative to the Group center
       onClick: handleClick,
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
@@ -249,18 +309,20 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         />
       )}
       
-      {/* Main node shape - different based on level */}
-      {renderNodeShape()}
+      {/* Main node shape with rotation animation - different based on level */}
+      <Group ref={nodeShapeRef} x={x} y={y}>
+        {renderNodeShape()}
+      </Group>
       
-      {/* Node label with text wrapping */}
+      {/* Node label with fantasy styling */}
       <Text
         x={x}
         y={getTextConfig().y}
         text={node.label}
         fontSize={getFontSize()}
-        fontFamily="PT Sans, sans-serif"
-        fontStyle="bold"
-        fill="#ffffff"
+        fontFamily="DM Sans, sans-serif" // Elegant fantasy font from your new imports
+        fontStyle="700" // Bold weight
+        fill="#f8fafc"
         align="center"
         verticalAlign="middle"
         width={getTextConfig().width}
@@ -268,8 +330,11 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         offsetX={getTextConfig().offsetX}
         offsetY={getTextConfig().offsetY}
         lineHeight={getTextConfig().lineHeight}
-        wrap="word" // Enable word wrapping
-        ellipsis={false} // Don't truncate with "..."
+        wrap="word"
+        ellipsis={false}
+        shadowBlur={4}
+        shadowColor={node.strokeColor}
+        shadowOpacity={0.5}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
