@@ -390,7 +390,39 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         {renderNodeShape()}
       </Group>
       
-      {/* Node label with pixel art styling */}
+      {/* Node label with pixel art styling and outline effect */}
+      {/* Black outline - render multiple times with offsets */}
+      {[-2, -1, 0, 1, 2].map(dx => 
+        [-2, -1, 0, 1, 2].map(dy => {
+          // Skip the center (0,0) as that will be the main text
+          if (dx === 0 && dy === 0) return null;
+          
+          return (
+            <Text
+              key={`outline-${dx}-${dy}`}
+              x={x + dx}
+              y={getTextConfig().y + dy}
+              text={node.label}
+              fontSize={getFontSize()}
+              fontFamily="Pixelify Sans, sans-serif"
+              fontStyle="700"
+              fill="#000000" // Black outline
+              align="center"
+              verticalAlign="middle"
+              width={getTextConfig().width}
+              height={getTextConfig().height}
+              offsetX={getTextConfig().offsetX}
+              offsetY={getTextConfig().offsetY}
+              lineHeight={getTextConfig().lineHeight}
+              wrap="word"
+              ellipsis={false}
+              listening={false} // Don't interfere with main text interactions
+            />
+          );
+        })
+      )}
+      
+      {/* Main white text */}
       <Text
         x={x}
         y={getTextConfig().y}
@@ -398,7 +430,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         fontSize={getFontSize()}
         fontFamily="Pixelify Sans, sans-serif" // Pixel art font
         fontStyle="700" // Bold weight
-        fill="#ffffff" // Matrix green color
+        fill="#ffffff" // White text
         align="center"
         verticalAlign="middle"
         width={getTextConfig().width}
@@ -408,10 +440,6 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         lineHeight={getTextConfig().lineHeight}
         wrap="word"
         ellipsis={false}
-        shadowBlur={0}
-        shadowColor="#000000"
-        shadowOpacity={1}
-        shadowOffset={{ x: 2, y: 2 }}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
