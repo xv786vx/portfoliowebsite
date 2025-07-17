@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import { useSkillTreeStore } from '../store/skillTreeStore';
 import SkillNode from './SkillNode';
 import ConnectionLines from './ConnectionLines';
+import OrbitalCircles from './OrbitalCircles';
 import ZoomPanStage, { type ZoomPanStageRef } from './ZoomPanStage';
+import backgroundImage from '../assets/nnewbackground1920_1080.png';
 
 const SkillTree: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -70,7 +72,7 @@ const SkillTree: React.FC = () => {
   return (
     <motion.div
       ref={containerRef}
-      className="fixed inset-0 w-screen h-screen bg-black overflow-hidden"
+      className="fixed inset-0 w-screen h-screen overflow-hidden"
       style={{
         position: 'fixed',
         top: 0,
@@ -78,7 +80,11 @@ const SkillTree: React.FC = () => {
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',
-        backgroundColor: '#000000',
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover', // Cover the entire viewport
+        backgroundPosition: 'center center', // Center the image
+        backgroundRepeat: 'no-repeat', // Don't repeat the image
+        imageRendering: 'pixelated', // Maintain pixel art quality
         margin: 0,
         padding: 0,
       }}
@@ -88,6 +94,13 @@ const SkillTree: React.FC = () => {
     >
       <ZoomPanStage ref={stageRef} width={dimensions.width} height={dimensions.height}>
         <Layer>
+          {/* Orbital guide circles */}
+          <OrbitalCircles 
+            centerX={centerX} 
+            centerY={centerY} 
+            scale={scale} 
+          />
+          
           {/* Connection lines */}
           <ConnectionLines 
             centerX={centerX} 
@@ -131,23 +144,39 @@ const ActiveNodePanel: React.FC = () => {
   
   return (
     <motion.div
-      style={panelStyle}
-      className="bg-red-500 border-4 border-yellow-400 p-6 rounded-xl text-white shadow-2xl"
+      style={{
+        ...panelStyle,
+        fontFamily: '"Courier New", "Monaco", monospace',
+        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
+        border: '4px solid #00ff41',
+        borderRadius: '0px', // Sharp pixel corners
+        boxShadow: '0 0 20px rgba(0, 255, 65, 0.3), inset 0 0 10px rgba(0, 255, 65, 0.1)',
+        imageRendering: 'pixelated',
+      }}
+      className="p-6 text-green-400 shadow-2xl"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <h3 className="text-2xl font-bold text-white mb-4 font-ptsans">{activeNode.label}</h3>
+      <h3 className="text-xl font-bold text-green-400 mb-4 font-mono tracking-wider uppercase">
+        {activeNode.label}
+      </h3>
       {activeNode.description && (
-        <p className="text-gray-300 text-base mb-4">{activeNode.description}</p>
+        <p className="text-green-300 text-sm mb-4 font-mono leading-relaxed">
+          {activeNode.description}
+        </p>
       )}
       <div className="flex items-center gap-3 mt-4">
         <div 
-          className="w-4 h-4 rounded-full"
-          style={{ backgroundColor: activeNode.strokeColor || activeNode.color }}
+          className="w-4 h-4 border border-green-500"
+          style={{ 
+            backgroundColor: activeNode.strokeColor || activeNode.color,
+            imageRendering: 'pixelated',
+            borderRadius: '0px'
+          }}
         />
-        <span className="text-sm text-gray-400">
-          Level {activeNode.level} Node
+        <span className="text-xs text-green-500 font-mono uppercase tracking-wide">
+          LVL.{activeNode.level} NODE
         </span>
       </div>
     </motion.div>

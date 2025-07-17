@@ -16,11 +16,7 @@ export default {
       },
 
       fontFamily: {
-        viet: ["Be Vietnam Pro", "sans-serif"],
-        lexend: ["Lexend", "sans-serif"],
-        sora: ["Sora", "sans-serif"],
-        dm: ["DM Sans", "sans-serif"],
-        inter: ["Inter", "sans-serif"],
+        pixelify: ["Pixelify Sans", "sans-serif"],
       },
     },
   },

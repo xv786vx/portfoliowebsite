@@ -6,6 +6,7 @@ interface ZoomPanStageProps {
   width: number;
   height: number;
   children: React.ReactNode;
+  onScaleChange?: (scale: number) => void;
 }
 
 export interface ZoomPanStageRef {
@@ -115,6 +116,11 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      // Pixel art specific settings
+      imageSmoothingEnabled={false}
+      pixelRatio={1}
+      // Force canvas to use nearest neighbor
+      listening={true}
     >
       {children}
     </Stage>
