@@ -11,6 +11,8 @@ interface ZoomPanStageProps {
 
 export interface ZoomPanStageRef {
   centerOn: (x: number, y: number) => void;
+  getStage: () => Konva.Stage | null;
+  immediateCenter: (x: number, y: number) => void;
 }
 
 const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, height, children }, ref) => {
@@ -55,6 +57,41 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
       
       currentTweenRef.current.play();
     },
+    immediateCenter: (nodeX: number, nodeY: number) => {
+      const stage = stageRef.current;
+      if (!stage) return;
+      
+      // Stop any existing animation
+      if (currentTweenRef.current) {
+        currentTweenRef.current.destroy();
+        currentTweenRef.current = null;
+      }
+      
+      // Calculate the position needed to center the node
+      const newPos = {
+        x: width / 2 - nodeX * stageScale,
+        y: height / 2 - nodeY * stageScale,
+      };
+      
+      // Create a quick, smooth animation (shorter duration than centerOn)
+      currentTweenRef.current = new Konva.Tween({
+        node: stage,
+        x: newPos.x,
+        y: newPos.y,
+        duration: 0, // Much faster to reduce flash
+        easing: Konva.Easings.EaseInOut,
+        onUpdate: () => {
+          setStagePos({ x: stage.x(), y: stage.y() });
+        },
+        onFinish: () => {
+          currentTweenRef.current = null;
+          setStagePos({ x: stage.x(), y: stage.y() });
+        },
+      });
+      
+      currentTweenRef.current.play();
+    },
+    getStage: () => stageRef.current,
   }), [width, height, stageScale]);
   
   // Handle mouse wheel zoom

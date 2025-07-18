@@ -147,7 +147,7 @@ const initialNodes: SkillNode[] = [
     isHovered: false,
     connections: ["skills"],
     color: "#75645d",
-    strokeColor: "#ac3232",
+    strokeColor: "#75645d",
   },
   {
     id: "5",

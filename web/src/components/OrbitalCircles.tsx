@@ -45,7 +45,7 @@ const OrbitalCircles: React.FC<OrbitalCirclesProps> = ({
   
   return (
     <Group>
-      {/* Orbital circle for category nodes (level 1) */}
+      {/* Orbital circle for category nodes (level 1) - static guide */}
       {level1Radius > 0 && (
         <Circle
           x={centerX}
@@ -61,7 +61,7 @@ const OrbitalCircles: React.FC<OrbitalCirclesProps> = ({
         />
       )}
       
-      {/* Orbital circle for child nodes (level 2) */}
+      {/* Orbital circle for child nodes (level 2) - static guide */}
       {level2Radius > 0 && (
         <Circle
           x={centerX}

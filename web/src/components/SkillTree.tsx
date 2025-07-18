@@ -3,22 +3,26 @@ import { Layer } from 'react-konva';
 import { motion } from 'framer-motion';
 import { useSkillTreeStore } from '../store/skillTreeStore';
 import SkillNode from './SkillNode';
-import ConnectionLines from './ConnectionLines';
 import OrbitalCircles from './OrbitalCircles';
 import ZoomPanStage, { type ZoomPanStageRef } from './ZoomPanStage';
 import backgroundImage from '../assets/nnewbackground1920_1080.png';
+import { getOrbitalPosition } from '../utils/orbitalPosition';
 
 const SkillTree: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<ZoomPanStageRef>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [scale, setScale] = useState(1);
+  const [animationTime, setAnimationTime] = useState(0);
+  const [isCenteringWithSpring, setIsCenteringWithSpring] = useState(false);
+  const [isOrbitalsPaused, setIsOrbitalsPaused] = useState(false);
+  const pausedAnimationTime = useRef(0);
   
   const { nodes, setCanvasSize, activeNodeId } = useSkillTreeStore();
   const lastActiveNodeId = useRef<string | null>(null);
   const isInitialLoad = useRef(true);
   
-  // Center the stage on the active node when it changes
+  // Center the stage on the active node when it changes (instant positioning)
   useEffect(() => {
     // Skip animation on initial load
     if (isInitialLoad.current) {
@@ -33,16 +37,63 @@ const SkillTree: React.FC = () => {
       if (activeNode) {
         const centerX = dimensions.width / 2;
         const centerY = dimensions.height / 2;
-        const nodeX = centerX + activeNode.position.x * scale;
-        const nodeY = centerY + activeNode.position.y * scale;
         
-        // Center immediately - no delay
-        stageRef.current.centerOn(nodeX, nodeY);
+        // Pause orbital rotation to prevent movement during positioning
+        setIsOrbitalsPaused(true);
+        setIsCenteringWithSpring(true);
+        
+        // Capture the current animation time for paused state
+        pausedAnimationTime.current = animationTime;
+        
+        // Get the current animated position (using paused time)
+        const currentPosition = getOrbitalPosition(activeNode, centerX, centerY, scale, pausedAnimationTime.current);
+        
+        // Instantly center on the node (duration = 0)
+        stageRef.current.immediateCenter(currentPosition.x, currentPosition.y);
+        
+        // Resume orbital motion after a brief delay to ensure positioning is complete
+        setTimeout(() => {
+          setIsOrbitalsPaused(false);
+          setIsCenteringWithSpring(false);
+        }, 50); // Very brief delay for clean transition
       }
     }
     
     lastActiveNodeId.current = activeNodeId;
-  }, [activeNodeId, nodes, dimensions, scale]);
+  }, [activeNodeId, nodes, dimensions, scale, animationTime]);
+
+  // Continuously track the active node's position as it rotates (smooth following)
+  useEffect(() => {
+    // Don't track during centering, if orbitals are paused, if no active node, or no stage
+    if (isCenteringWithSpring || isOrbitalsPaused || !activeNodeId || !stageRef.current) return;
+    
+    const activeNode = nodes.find(node => node.id === activeNodeId);
+    if (!activeNode) return;
+    
+    // Only track moving nodes (level 1 and 2), center node stays fixed
+    if (activeNode.level === 0) return;
+    
+    const centerX = dimensions.width / 2;
+    const centerY = dimensions.height / 2;
+    
+    // Get the current animated position and smoothly follow it
+    const currentPosition = getOrbitalPosition(activeNode, centerX, centerY, scale, animationTime);
+    
+    // Calculate the new stage position for continuous tracking
+    const newPos = {
+      x: centerX - currentPosition.x,
+      y: centerY - currentPosition.y,
+    };
+    
+    // Update the Konva stage directly for smooth real-time tracking
+    const stage = stageRef.current.getStage();
+    if (stage) {
+      stage.position(newPos);
+      stage.batchDraw();
+    }
+    
+    // Don't update the spring value during tracking to avoid conflicts
+  }, [animationTime, activeNodeId, nodes, dimensions, scale, isCenteringWithSpring, isOrbitalsPaused]); // Update every frame
   
   // Handle responsive sizing
   useEffect(() => {
@@ -65,6 +116,16 @@ const SkillTree: React.FC = () => {
     
     return () => window.removeEventListener('resize', updateDimensions);
   }, [setCanvasSize]);
+
+  // Animation loop for orbital rotation
+  useEffect(() => {
+    const animate = () => {
+      setAnimationTime(Date.now());
+      requestAnimationFrame(animate);
+    };
+    const animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
   
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
@@ -98,14 +159,7 @@ const SkillTree: React.FC = () => {
           <OrbitalCircles 
             centerX={centerX} 
             centerY={centerY} 
-            scale={scale} 
-          />
-          
-          {/* Connection lines */}
-          <ConnectionLines 
-            centerX={centerX} 
-            centerY={centerY} 
-            scale={scale} 
+            scale={scale}
           />
           
           {/* Skill nodes */}
@@ -116,6 +170,7 @@ const SkillTree: React.FC = () => {
               centerX={centerX}
               centerY={centerY}
               scale={scale}
+              animationTime={isOrbitalsPaused ? pausedAnimationTime.current : animationTime}
             />
           ))}
         </Layer>

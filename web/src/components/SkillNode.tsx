@@ -3,6 +3,7 @@ import { Circle, Text, Group, Image } from 'react-konva';
 import { useSkillTreeStore, type SkillNode as SkillNodeType } from '../store/skillTreeStore';
 import useImage from 'use-image';
 import type Konva from 'konva';
+import { getOrbitalPosition } from '../utils/orbitalPosition';
 
 // Import pixel art sprites at exact target sizes
 import squareSprite from '../assets/nnewcentral240.png'; // Central Node - 240px
@@ -139,20 +140,22 @@ interface SkillNodeProps {
   centerX: number;
   centerY: number;
   scale?: number;
+  animationTime?: number;
 }
 
 const SkillNode: React.FC<SkillNodeProps> = ({ 
   node, 
   centerX, 
   centerY, 
-  scale = 1 
+  scale = 1,
+  animationTime = 0
 }) => {
   const { setActiveNode, setHoveredNode } = useSkillTreeStore();
   const glowRingRef = useRef<Konva.Group>(null);
   const nodeShapeRef = useRef<Konva.Group>(null);
   
-  const x = centerX + node.position.x * scale;
-  const y = centerY + node.position.y * scale;
+  // Calculate orbital position using shared utility function
+  const { x, y } = getOrbitalPosition(node, centerX, centerY, scale, animationTime);
   
   // Animate the glow ring rotation
   useEffect(() => {
