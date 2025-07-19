@@ -150,7 +150,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   scale = 1,
   animationTime = 0
 }) => {
-  const { setActiveNode, setHoveredNode } = useSkillTreeStore();
+  const { setActiveNode, setHoveredNode, activeNodeId, openDetailModal } = useSkillTreeStore();
   const glowRingRef = useRef<Konva.Group>(null);
   const nodeShapeRef = useRef<Konva.Group>(null);
   
@@ -363,7 +363,13 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   };
   
   const handleClick = () => {
-    setActiveNode(node.id);
+    if (activeNodeId === node.id) {
+      // If clicking on the already active node, open the detail modal
+      openDetailModal(node.id);
+    } else {
+      // Otherwise, set this node as active
+      setActiveNode(node.id);
+    }
   };
   
   const handleMouseEnter = () => {

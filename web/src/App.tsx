@@ -1,4 +1,3 @@
-import React from 'react'
 import SkillTree from './components/SkillTree'
 import './App.css'
 

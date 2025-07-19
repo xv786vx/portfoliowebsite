@@ -5,8 +5,13 @@ import { useSkillTreeStore } from '../store/skillTreeStore';
 import SkillNode from './SkillNode';
 import OrbitalCircles from './OrbitalCircles';
 import ZoomPanStage, { type ZoomPanStageRef } from './ZoomPanStage';
+import DetailModal from './DetailModal';
 import backgroundImage from '../assets/nnewbackground1920_1080.png';
 import { getOrbitalPosition } from '../utils/orbitalPosition';
+
+// Import cursor images (you'll need to create these)
+import rocketCursor from '../assets/cursor32.png';
+import rocketHoverCursor from '../assets/cursor_hover32.png';
 
 const SkillTree: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,7 +23,15 @@ const SkillTree: React.FC = () => {
   const [isOrbitalsPaused, setIsOrbitalsPaused] = useState(false);
   const pausedAnimationTime = useRef(0);
   
-  const { nodes, setCanvasSize, activeNodeId } = useSkillTreeStore();
+  const { 
+    nodes, 
+    setCanvasSize, 
+    activeNodeId, 
+    hoveredNodeId, 
+    isDetailModalOpen, 
+    detailModalNodeId, 
+    closeDetailModal 
+  } = useSkillTreeStore();
   const lastActiveNodeId = useRef<string | null>(null);
   const isInitialLoad = useRef(true);
   
@@ -130,6 +143,16 @@ const SkillTree: React.FC = () => {
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
   
+  // Determine cursor style based on hover state
+  const getCursorStyle = () => {
+    // If hovering over the currently active node, show special cursor
+    if (hoveredNodeId && hoveredNodeId === activeNodeId) {
+      return `url(${rocketHoverCursor}) 16 16, pointer`; // 16,16 is hotspot center for 32x32 image
+    }
+    // Default rocket cursor
+    return `url(${rocketCursor}) 16 16, auto`;
+  };
+  
   return (
     <motion.div
       ref={containerRef}
@@ -148,6 +171,7 @@ const SkillTree: React.FC = () => {
         imageRendering: 'pixelated', // Maintain pixel art quality
         margin: 0,
         padding: 0,
+        cursor: getCursorStyle(), // Apply custom cursor
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -176,8 +200,15 @@ const SkillTree: React.FC = () => {
         </Layer>
       </ZoomPanStage>
       
-      {/* Overlay UI for active node details */}
-      <ActiveNodePanel />
+      {/* Overlay UI for active node details - hide when modal is open */}
+      {!isDetailModalOpen && <ActiveNodePanel />}
+
+      {/* Detail Modal */}
+      <DetailModal
+        isOpen={isDetailModalOpen}
+        nodeData={detailModalNodeId ? nodes.find(n => n.id === detailModalNodeId)?.portfolioData || null : null}
+        onClose={closeDetailModal}
+      />
     </motion.div>
   );
 };
@@ -199,25 +230,17 @@ const ActiveNodePanel: React.FC = () => {
   
   return (
     <motion.div
-      style={{
-        ...panelStyle,
-        fontFamily: '"Courier New", "Monaco", monospace',
-        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',
-        border: '4px solid #00ff41',
-        borderRadius: '0px', // Sharp pixel corners
-        boxShadow: '0 0 20px rgba(0, 255, 65, 0.3), inset 0 0 10px rgba(0, 255, 65, 0.1)',
-        imageRendering: 'pixelated',
-      }}
-      className="p-6 text-green-400 shadow-2xl"
+      style={panelStyle}
+      className="p-6 text-green-400 shadow-2xl text-white font-pixelify"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <h3 className="text-xl font-bold text-green-400 mb-4 font-mono tracking-wider uppercase">
+      <h3 className="text-2xl font-medium text-white mb-2 tracking-wider uppercase underline underline-offset-4">
         {activeNode.label}
       </h3>
       {activeNode.description && (
-        <p className="text-green-300 text-sm mb-4 font-mono leading-relaxed">
+        <p className="text-green-300 text-md mb-4 leading-relaxed">
           {activeNode.description}
         </p>
       )}
@@ -230,8 +253,8 @@ const ActiveNodePanel: React.FC = () => {
             borderRadius: '0px'
           }}
         />
-        <span className="text-xs text-green-500 font-mono uppercase tracking-wide">
-          LVL.{activeNode.level} NODE
+        <span className="text-xs text-green-500 uppercase tracking-wide">
+          LEVEL {activeNode.level} NODE
         </span>
       </div>
     </motion.div>
