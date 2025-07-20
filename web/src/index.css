@@ -30,5 +30,33 @@
     -moz-osx-font-smoothing: grayscale;
     overscroll-behavior: none;
     touch-action: manipulation;
+  } /* Ultra-aggressive pixel art rendering - force nearest neighbor */
+  canvas {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+  }
+
+  /* Force all images to render as pixel art */
+  img {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+  }
+
+  /* Disable all anti-aliasing and smoothing */
+  * {
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-smooth: never;
+    text-rendering: geometricPrecision;
   }
 }

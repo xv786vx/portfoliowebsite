@@ -1,27 +1,161 @@
 import React, { useEffect, useRef } from 'react';
-import { Circle, Text, Group, Path } from 'react-konva';
+import { Circle, Text, Group, Image } from 'react-konva';
 import { useSkillTreeStore, type SkillNode as SkillNodeType } from '../store/skillTreeStore';
+import useImage from 'use-image';
 import type Konva from 'konva';
+import { getOrbitalPosition } from '../utils/orbitalPosition';
+
+// Import pixel art sprites at exact target sizes
+import squareSprite from '../assets/nnewcentral240.png'; // Central Node - 240px
+
+// Category node sprites - each gets unique hexagon
+import projectsSprite from '../assets/newhexagon4_120.png'; // Projects
+import experienceSprite from '../assets/newhexagon1_120.png'; // Experience  
+import skillsSprite from '../assets/newhexagon3_120.png'; // Skills
+import contactSprite from '../assets/newhexagon2_120.png'; // Contact  
+
+// Child node sprites - alternating circles
+import circle1Sprite from '../assets/newcircle1_88.png'; // Even positioned child nodes
+import circle2Sprite from '../assets/newcircle2_88.png'; // Odd positioned child nodes  
+
+// Function to get the correct sprite for category nodes based on node ID
+const getCategorySprite = (nodeId: string): string => {
+  switch (nodeId) {
+    case 'projects':
+      return projectsSprite;
+    case 'experience':
+      return experienceSprite;
+    case 'skills':
+      return skillsSprite;
+    case 'contact':
+      return contactSprite;
+    default:
+      return experienceSprite; // fallback
+  }
+};
+
+const getChildNodeSprite = (nodeId: string): string => {
+  // Get all level 2 (child) nodes and sort them by ID for consistent ordering
+  const allNodes = useSkillTreeStore.getState().nodes;
+  const childNodes = allNodes.filter(n => n.level === 2).sort((a, b) => a.id.localeCompare(b.id));
+  
+  // Find the index of this node among all child nodes
+  const nodeIndex = childNodes.findIndex(n => n.id === nodeId);
+  
+  // Even index = circle1, Odd index = circle2
+  return nodeIndex % 2 === 0 ? circle1Sprite : circle2Sprite;
+};
+
+// Pixel art constants - actual sizes matching your sprites
+const NODE_SIZES = {
+  LEVEL_0: 200, // Center node (hexagon)
+  LEVEL_1: 108, // Category nodes (circle)
+  LEVEL_2: 88,  // Skill nodes (alternating circles)
+  LEVEL_3: 80,  // Additional nodes (square)
+};
+
+// Component for rendering pixelated ring effects
+const PixelatedRing: React.FC<{
+  x: number;
+  y: number;
+  radius: number;
+  color: string;
+  isActive: boolean;
+  glowRef?: React.RefObject<Konva.Group | null>;
+}> = ({ x, y, radius, color, isActive, glowRef }) => {
+  return (
+    <Group ref={glowRef} x={x} y={y}>
+      {/* Outer ring */}
+      <Circle
+        radius={radius * 1.4}
+        fill="transparent"
+        stroke={color}
+        strokeWidth={2}
+        opacity={isActive ? 0.3 : 0.15}
+        dash={[12, 12]}
+        lineCap="butt"
+        perfectDrawEnabled={false}
+      />
+      {/* Middle ring */}
+      <Circle
+        radius={radius * 1.25}
+        fill="transparent"
+        stroke={color}
+        strokeWidth={3}
+        opacity={isActive ? 0.5 : 0.25}
+        dash={[8, 8]}
+        lineCap="butt"
+        perfectDrawEnabled={false}
+      />
+      {/* Inner ring */}
+      <Circle
+        radius={radius * 1.1}
+        fill="transparent"
+        stroke={color}
+        strokeWidth={4}
+        opacity={isActive ? 0.7 : 0.35}
+        dash={[4, 4]}
+        lineCap="butt"
+        perfectDrawEnabled={false}
+      />
+    </Group>
+  );
+};
+
+// Component for rendering pixel art sprites at exact sizes (no scaling)
+const PixelSprite: React.FC<{
+  src: string;
+  x: number;
+  y: number;
+  size: number; // Exact pixel size of the sprite
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}> = ({ src, x, y, size, onClick, onMouseEnter, onMouseLeave }) => {
+  const [image] = useImage(src);
+  
+  return (
+    <Image
+      image={image}
+      x={x - size / 2} // Center the sprite
+      y={y - size / 2}
+      width={size}
+      height={size}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      // Pixel-perfect rendering - no scaling needed
+      perfectDrawEnabled={false}
+      imageSmoothingEnabled={false}
+      pixelRatio={1}
+      filters={[]}
+      cache={false}
+      listening={true}
+    />
+  );
+};
 
 interface SkillNodeProps {
   node: SkillNodeType;
   centerX: number;
   centerY: number;
   scale?: number;
+  animationTime?: number;
 }
 
 const SkillNode: React.FC<SkillNodeProps> = ({ 
   node, 
   centerX, 
   centerY, 
-  scale = 1 
+  scale = 1,
+  animationTime = 0
 }) => {
-  const { setActiveNode, setHoveredNode } = useSkillTreeStore();
-  const glowRingRef = useRef<Konva.Circle>(null);
+  const { setActiveNode, setHoveredNode, activeNodeId, openDetailModal } = useSkillTreeStore();
+  const glowRingRef = useRef<Konva.Group>(null);
   const nodeShapeRef = useRef<Konva.Group>(null);
   
-  const x = centerX + node.position.x * scale;
-  const y = centerY + node.position.y * scale;
+  // Calculate orbital position using shared utility function
+  const { x, y } = getOrbitalPosition(node, centerX, centerY, scale, animationTime);
   
   // Animate the glow ring rotation
   useEffect(() => {
@@ -134,14 +268,14 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   // Calculate text positioning and wrapping based on node shape
   const getTextConfig = () => {
     switch (node.level) {
-      case 0: // Center pentagon - needs tighter wrapping area for multi-line text
+      case 0: // Center square - needs tighter wrapping area for multi-line text
         return {
           width: radius * 1.8, // Narrower width forces wrapping for longer text
-          height: radius * 1.4, // Height constraint for pentagon interior
+          height: radius * 1.4, // Height constraint for square interior
           offsetX: radius * 0.9,
           offsetY: radius * 0.7, // Offset for vertical centering
           y: y,
-          lineHeight: 1.1, // Tighter line spacing for pentagon
+          lineHeight: 1.1, // Tighter line spacing for square
         };
       case 1: // Hexagon - good horizontal and vertical space
         return {
@@ -172,116 +306,70 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         };
     }
   };
-  
-  // Custom SVG path definitions (scaled to fit radius)
-  const svgPaths = {
-    // Hexagon for level 1 nodes
-    hexagon: `M ${radius * 0.866} ${radius * 0.5} L ${radius * 0.866} ${radius * -0.5} L 0 ${radius * -1} L ${radius * -0.866} ${radius * -0.5} L ${radius * -0.866} ${radius * 0.5} L 0 ${radius} Z`,
-    
-    // Upside-down pentagon for level 3 nodes
-    pentagonUpsideDown: `M 0 ${radius} L ${radius * 0.951} ${radius * 0.309} L ${radius * 0.588} ${radius * -0.809} L ${radius * -0.588} ${radius * -0.809} L ${radius * -0.951} ${radius * 0.309} Z`,
-    };
-  
-  // Dynamic styling based on state
-  const getNodeStyle = () => {
-    const baseStyle = {
-      radius,
-      fill: '#181818',
-      stroke: node.strokeColor || '#ffffff',
-      strokeWidth: 2,
-      shadowBlur: 0,
-      shadowColor: 'transparent',
-    };
-    
-    if (node.isActive) {
-      return {
-        ...baseStyle,
-        shadowBlur: 20,
-        shadowColor: node.strokeColor,
-        strokeWidth: 4,
-        stroke: node.strokeColor || '#ffffff',
-      };
-    }
-    
-    if (node.isHovered) {
-      return {
-        ...baseStyle,
-        shadowBlur: 15,
-        shadowColor: node.strokeColor,
-        strokeWidth: 3,
-        radius: radius * 1,
-      };
-    }
-    
-    return baseStyle;
-  };
-  
-  const nodeStyle = getNodeStyle();
-  
-  // Render different shapes based on level
+
+  // Render different shapes based on level using exact-sized pixel art sprites
   const renderNodeShape = () => {
     const commonProps = {
-      x: 0, // Relative to the Group center
-      y: 0, // Relative to the Group center
       onClick: handleClick,
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
-      perfectDrawEnabled: false,
     };
 
     switch (node.level) {
-
-        case 0: // Level 0 - Upside-down Pentagon
-          return (
-            <Path
-              {...commonProps}
-              data={svgPaths.pentagonUpsideDown}
-              fill={nodeStyle.fill}
-              stroke={nodeStyle.stroke}
-              strokeWidth={nodeStyle.strokeWidth}
-              shadowBlur={nodeStyle.shadowBlur}
-              shadowColor={nodeStyle.shadowColor}
-              offsetX={0}
-              offsetY={0}
-            />
-          );
-      
-      case 1: // Level 1 - Hexagon
+      case 0: // Level 0 - Central node (hexagon 160px)
         return (
-          <Path
+          <PixelSprite
             {...commonProps}
-            data={svgPaths.hexagon}
-            fill={nodeStyle.fill}
-            stroke={nodeStyle.stroke}
-            strokeWidth={nodeStyle.strokeWidth}
-            shadowBlur={nodeStyle.shadowBlur}
-            shadowColor={nodeStyle.shadowColor}
-            offsetX={0}
-            offsetY={0}
+            src={squareSprite}
+            x={0}
+            y={0}
+            size={NODE_SIZES.LEVEL_0} // 160px
           />
         );
       
-      case 2: // Level 2 - Circle
+      case 1: // Level 1 - Category nodes (each with unique hexagon)
         return (
-          <Circle
+          <PixelSprite
             {...commonProps}
-            {...nodeStyle}
+            src={getCategorySprite(node.id)}
+            x={0}
+            y={0}
+            size={NODE_SIZES.LEVEL_1} // 108px
+          />
+        );
+      
+      case 2: // Level 2 - Skill nodes (alternating circles 88px)
+        return (
+          <PixelSprite
+            {...commonProps}
+            src={getChildNodeSprite(node.id)}
+            x={0}
+            y={0}
+            size={NODE_SIZES.LEVEL_2} // 88px
           />
         );
         
-      
-      default: // Fallback to circle
+      default: // Fallback to square (80px)
         return (
-          <Circle
+          <PixelSprite
             {...commonProps}
-            {...nodeStyle}
+            src={squareSprite}
+            x={0}
+            y={0}
+            size={NODE_SIZES.LEVEL_3} // 80px
           />
         );
     }
   };
   
   const handleClick = () => {
-    setActiveNode(node.id);
+    if (activeNodeId === node.id) {
+      // If clicking on the already active node, open the detail modal
+      openDetailModal(node.id);
+    } else {
+      // Otherwise, set this node as active
+      setActiveNode(node.id);
+    }
   };
   
   const handleMouseEnter = () => {
@@ -294,18 +382,15 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   
   return (
     <Group>
-      {/* Outer glow ring for active/hovered states */}
+      {/* Pixelated glow ring for active/hovered states */}
       {(node.isActive || node.isHovered) && (
-        <Circle
-          ref={glowRingRef}
+        <PixelatedRing
           x={x}
           y={y}
-          radius={radius * 1.3}
-          fill="transparent"
-          stroke={node.strokeColor}
-          strokeWidth={2}
-          opacity={node.isActive ? 0.6 : 0.3}
-          dash={[5, 5]}
+          radius={radius}
+          color={node.strokeColor || "#ffffff"} // Matrix green color
+          isActive={node.isActive}
+          glowRef={glowRingRef}
         />
       )}
       
@@ -314,15 +399,47 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         {renderNodeShape()}
       </Group>
       
-      {/* Node label with fantasy styling */}
+      {/* Node label with pixel art styling and outline effect */}
+      {/* Black outline - render multiple times with offsets */}
+      {[-2, -1, 0, 1, 2].map(dx => 
+        [-2, -1, 0, 1, 2].map(dy => {
+          // Skip the center (0,0) as that will be the main text
+          if (dx === 0 && dy === 0) return null;
+          
+          return (
+            <Text
+              key={`outline-${dx}-${dy}`}
+              x={x + dx}
+              y={getTextConfig().y + dy}
+              text={node.label}
+              fontSize={getFontSize()}
+              fontFamily="Pixelify Sans, sans-serif"
+              fontStyle="700"
+              fill="#000000" // Black outline
+              align="center"
+              verticalAlign="middle"
+              width={getTextConfig().width}
+              height={getTextConfig().height}
+              offsetX={getTextConfig().offsetX}
+              offsetY={getTextConfig().offsetY}
+              lineHeight={getTextConfig().lineHeight}
+              wrap="word"
+              ellipsis={false}
+              listening={false} // Don't interfere with main text interactions
+            />
+          );
+        })
+      )}
+      
+      {/* Main white text */}
       <Text
         x={x}
         y={getTextConfig().y}
         text={node.label}
         fontSize={getFontSize()}
-        fontFamily="DM Sans, sans-serif" // Elegant fantasy font from your new imports
+        fontFamily="Pixelify Sans, sans-serif" // Pixel art font
         fontStyle="700" // Bold weight
-        fill="#f8fafc"
+        fill="#ffffff" // White text
         align="center"
         verticalAlign="middle"
         width={getTextConfig().width}
@@ -332,9 +449,6 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         lineHeight={getTextConfig().lineHeight}
         wrap="word"
         ellipsis={false}
-        shadowBlur={4}
-        shadowColor={node.strokeColor}
-        shadowOpacity={0.5}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}

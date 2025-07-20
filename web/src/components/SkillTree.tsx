@@ -3,20 +3,39 @@ import { Layer } from 'react-konva';
 import { motion } from 'framer-motion';
 import { useSkillTreeStore } from '../store/skillTreeStore';
 import SkillNode from './SkillNode';
-import ConnectionLines from './ConnectionLines';
+import OrbitalCircles from './OrbitalCircles';
 import ZoomPanStage, { type ZoomPanStageRef } from './ZoomPanStage';
+import DetailModal from './DetailModal';
+import backgroundImage from '../assets/nnewbackground1920_1080.png';
+import { getOrbitalPosition } from '../utils/orbitalPosition';
+
+// Import cursor images (you'll need to create these)
+import rocketCursor from '../assets/cursor32.png';
+import rocketHoverCursor from '../assets/cursor_hover32.png';
 
 const SkillTree: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<ZoomPanStageRef>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [scale, setScale] = useState(1);
+  const [animationTime, setAnimationTime] = useState(0);
+  const [isCenteringWithSpring, setIsCenteringWithSpring] = useState(false);
+  const [isOrbitalsPaused, setIsOrbitalsPaused] = useState(false);
+  const pausedAnimationTime = useRef(0);
   
-  const { nodes, setCanvasSize, activeNodeId } = useSkillTreeStore();
+  const { 
+    nodes, 
+    setCanvasSize, 
+    activeNodeId, 
+    hoveredNodeId, 
+    isDetailModalOpen, 
+    detailModalNodeId, 
+    closeDetailModal 
+  } = useSkillTreeStore();
   const lastActiveNodeId = useRef<string | null>(null);
   const isInitialLoad = useRef(true);
   
-  // Center the stage on the active node when it changes
+  // Center the stage on the active node when it changes (instant positioning)
   useEffect(() => {
     // Skip animation on initial load
     if (isInitialLoad.current) {
@@ -31,16 +50,63 @@ const SkillTree: React.FC = () => {
       if (activeNode) {
         const centerX = dimensions.width / 2;
         const centerY = dimensions.height / 2;
-        const nodeX = centerX + activeNode.position.x * scale;
-        const nodeY = centerY + activeNode.position.y * scale;
         
-        // Center immediately - no delay
-        stageRef.current.centerOn(nodeX, nodeY);
+        // Pause orbital rotation to prevent movement during positioning
+        setIsOrbitalsPaused(true);
+        setIsCenteringWithSpring(true);
+        
+        // Capture the current animation time for paused state
+        pausedAnimationTime.current = animationTime;
+        
+        // Get the current animated position (using paused time)
+        const currentPosition = getOrbitalPosition(activeNode, centerX, centerY, scale, pausedAnimationTime.current);
+        
+        // Instantly center on the node (duration = 0)
+        stageRef.current.immediateCenter(currentPosition.x, currentPosition.y);
+        
+        // Resume orbital motion after a brief delay to ensure positioning is complete
+        setTimeout(() => {
+          setIsOrbitalsPaused(false);
+          setIsCenteringWithSpring(false);
+        }, 50); // Very brief delay for clean transition
       }
     }
     
     lastActiveNodeId.current = activeNodeId;
-  }, [activeNodeId, nodes, dimensions, scale]);
+  }, [activeNodeId, nodes, dimensions, scale, animationTime]);
+
+  // Continuously track the active node's position as it rotates (smooth following)
+  useEffect(() => {
+    // Don't track during centering, if orbitals are paused, if no active node, or no stage
+    if (isCenteringWithSpring || isOrbitalsPaused || !activeNodeId || !stageRef.current) return;
+    
+    const activeNode = nodes.find(node => node.id === activeNodeId);
+    if (!activeNode) return;
+    
+    // Only track moving nodes (level 1 and 2), center node stays fixed
+    if (activeNode.level === 0) return;
+    
+    const centerX = dimensions.width / 2;
+    const centerY = dimensions.height / 2;
+    
+    // Get the current animated position and smoothly follow it
+    const currentPosition = getOrbitalPosition(activeNode, centerX, centerY, scale, animationTime);
+    
+    // Calculate the new stage position for continuous tracking
+    const newPos = {
+      x: centerX - currentPosition.x,
+      y: centerY - currentPosition.y,
+    };
+    
+    // Update the Konva stage directly for smooth real-time tracking
+    const stage = stageRef.current.getStage();
+    if (stage) {
+      stage.position(newPos);
+      stage.batchDraw();
+    }
+    
+    // Don't update the spring value during tracking to avoid conflicts
+  }, [animationTime, activeNodeId, nodes, dimensions, scale, isCenteringWithSpring, isOrbitalsPaused]); // Update every frame
   
   // Handle responsive sizing
   useEffect(() => {
@@ -63,14 +129,34 @@ const SkillTree: React.FC = () => {
     
     return () => window.removeEventListener('resize', updateDimensions);
   }, [setCanvasSize]);
+
+  // Animation loop for orbital rotation
+  useEffect(() => {
+    const animate = () => {
+      setAnimationTime(Date.now());
+      requestAnimationFrame(animate);
+    };
+    const animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
   
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
   
+  // Determine cursor style based on hover state
+  const getCursorStyle = () => {
+    // If hovering over the currently active node, show special cursor
+    if (hoveredNodeId && hoveredNodeId === activeNodeId) {
+      return `url(${rocketHoverCursor}) 16 16, pointer`; // 16,16 is hotspot center for 32x32 image
+    }
+    // Default rocket cursor
+    return `url(${rocketCursor}) 16 16, auto`;
+  };
+  
   return (
     <motion.div
       ref={containerRef}
-      className="fixed inset-0 w-screen h-screen bg-black overflow-hidden"
+      className="fixed inset-0 w-screen h-screen overflow-hidden"
       style={{
         position: 'fixed',
         top: 0,
@@ -78,9 +164,14 @@ const SkillTree: React.FC = () => {
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',
-        backgroundColor: '#000000',
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover', // Cover the entire viewport
+        backgroundPosition: 'center center', // Center the image
+        backgroundRepeat: 'no-repeat', // Don't repeat the image
+        imageRendering: 'pixelated', // Maintain pixel art quality
         margin: 0,
         padding: 0,
+        cursor: getCursorStyle(), // Apply custom cursor
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -88,11 +179,11 @@ const SkillTree: React.FC = () => {
     >
       <ZoomPanStage ref={stageRef} width={dimensions.width} height={dimensions.height}>
         <Layer>
-          {/* Connection lines */}
-          <ConnectionLines 
+          {/* Orbital guide circles */}
+          <OrbitalCircles 
             centerX={centerX} 
             centerY={centerY} 
-            scale={scale} 
+            scale={scale}
           />
           
           {/* Skill nodes */}
@@ -103,13 +194,21 @@ const SkillTree: React.FC = () => {
               centerX={centerX}
               centerY={centerY}
               scale={scale}
+              animationTime={isOrbitalsPaused ? pausedAnimationTime.current : animationTime}
             />
           ))}
         </Layer>
       </ZoomPanStage>
       
-      {/* Overlay UI for active node details */}
-      <ActiveNodePanel />
+      {/* Overlay UI for active node details - hide when modal is open */}
+      {!isDetailModalOpen && <ActiveNodePanel />}
+
+      {/* Detail Modal */}
+      <DetailModal
+        isOpen={isDetailModalOpen}
+        nodeData={detailModalNodeId ? nodes.find(n => n.id === detailModalNodeId)?.portfolioData || null : null}
+        onClose={closeDetailModal}
+      />
     </motion.div>
   );
 };
@@ -132,22 +231,30 @@ const ActiveNodePanel: React.FC = () => {
   return (
     <motion.div
       style={panelStyle}
-      className="bg-red-500 border-4 border-yellow-400 p-6 rounded-xl text-white shadow-2xl"
+      className="p-6 text-green-400 shadow-2xl text-white font-pixelify"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <h3 className="text-2xl font-bold text-white mb-4 font-ptsans">{activeNode.label}</h3>
+      <h3 className="text-2xl font-medium text-white mb-2 tracking-wider uppercase underline underline-offset-4">
+        {activeNode.label}
+      </h3>
       {activeNode.description && (
-        <p className="text-gray-300 text-base mb-4">{activeNode.description}</p>
+        <p className="text-green-300 text-md mb-4 leading-relaxed">
+          {activeNode.description}
+        </p>
       )}
       <div className="flex items-center gap-3 mt-4">
         <div 
-          className="w-4 h-4 rounded-full"
-          style={{ backgroundColor: activeNode.strokeColor || activeNode.color }}
+          className="w-4 h-4 border border-green-500"
+          style={{ 
+            backgroundColor: activeNode.strokeColor || activeNode.color,
+            imageRendering: 'pixelated',
+            borderRadius: '0px'
+          }}
         />
-        <span className="text-sm text-gray-400">
-          Level {activeNode.level} Node
+        <span className="text-xs text-green-500 uppercase tracking-wide">
+          LEVEL {activeNode.level} NODE
         </span>
       </div>
     </motion.div>

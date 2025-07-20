@@ -39,7 +39,7 @@ const ConnectionLines: React.FC<ConnectionLinesProps> = ({
                 y: centerY + connectedNode.position.y * scale,
               },
               color: node.isActive || connectedNode.isActive ? 
-                (node.color || connectedNode.color || '#3b82f6') : '#4b5563',
+                (node.strokeColor || connectedNode.strokeColor || '#ffffff') : '#666666',
               isActive: node.isActive || connectedNode.isActive,
             });
           }
@@ -64,11 +64,15 @@ const ConnectionLines: React.FC<ConnectionLinesProps> = ({
             connection.to.y,
           ]}
           stroke={connection.color}
-          strokeWidth={connection.isActive ? 3 : 2}
-          opacity={connection.isActive ? 0.8 : 0.4}
-          lineCap="round"
-          dash={connection.isActive ? undefined : [10, 5]}
+          strokeWidth={connection.isActive ? 6 : 4} // 4px for inactive, 6px for active to maintain pixel aesthetic
+          opacity={connection.isActive ? 0.9 : 0.5}
+          lineCap="butt" // Sharp corners for pixel art
+          lineJoin="miter" // Sharp joins
+          dash={connection.isActive ? undefined : [8, 8]} // Pixel-sized dashes
           perfectDrawEnabled={false}
+          shadowBlur={connection.isActive ? 4 : 0}
+          shadowColor={connection.isActive ? connection.color : 'transparent'}
+          shadowOpacity={0.3}
         />
       ))}
     </Group>

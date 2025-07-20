@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import portfolioData from "../data/portfolioData.json";
+import type { PortfolioNodeData } from "../types/portfolioTypes";
 
 export interface SkillNode {
   id: string;
@@ -13,6 +15,7 @@ export interface SkillNode {
   icon?: string;
   color?: string;
   strokeColor?: string; // Optional stroke color for the node
+  portfolioData?: PortfolioNodeData; // Reference to detailed portfolio data
 }
 
 interface SkillTreeState {
@@ -20,6 +23,8 @@ interface SkillTreeState {
   activeNodeId: string | null;
   hoveredNodeId: string | null;
   canvasSize: { width: number; height: number };
+  isDetailModalOpen: boolean;
+  detailModalNodeId: string | null;
   setActiveNode: (nodeId: string | null) => void;
   setHoveredNode: (nodeId: string | null) => void;
   setCanvasSize: (size: { width: number; height: number }) => void;
@@ -27,139 +32,207 @@ interface SkillTreeState {
     nodeId: string,
     position: { x: number; y: number }
   ) => void;
+  openDetailModal: (nodeId: string) => void;
+  closeDetailModal: () => void;
 }
 
 // Sample node data for the portfolio
 const initialNodes: SkillNode[] = [
   {
     id: "center",
-    label: "Firas Adnan Jalil",
-    description: "Aspiring Software Engineer",
+    label: portfolioData.center.label,
+    description: portfolioData.center.description,
     position: { x: 0, y: 0 },
     level: 0,
     isActive: true,
     isHovered: false,
     connections: ["projects", "experience", "skills", "contact"],
-    color: "#295b9c",
-    strokeColor: "#295b9c",
+    color: "#ff3e5b",
+    strokeColor: "#ff3e5b",
+    portfolioData: portfolioData.center,
   },
+  // First level nodes
   {
     id: "projects",
-    label: "Projects",
-    description: "Portfolio & Commercial Work",
+    label: portfolioData.projects.label,
+    description: portfolioData.projects.description,
     position: { x: 0, y: -200 },
     level: 1,
     angle: -Math.PI / 2,
     isActive: false,
     isHovered: false,
-    connections: ["center", "web-projects", "mobile-projects"],
-    color: "#3e844b",
-    strokeColor: "#3e844b",
+    connections: [
+      "center",
+      "project_syncer",
+      "project_f1",
+      "project_lstm",
+      "project_ss",
+      "project_recipelens",
+    ],
+    color: "#36732e",
+    strokeColor: "#36732e",
+    portfolioData: portfolioData.projects,
   },
   {
     id: "experience",
-    label: "Experience",
-    description: "5+ Years Development",
+    label: portfolioData.experience.label,
+    description: portfolioData.experience.description,
     position: { x: 200, y: 0 },
     level: 1,
     angle: 0,
     isActive: false,
     isHovered: false,
-    connections: ["center", "education"],
-    color: "#6c3ba4",
-    strokeColor: "#6c3ba4",
+    connections: [
+      "center",
+      "experience_vertige",
+      "experience_owh",
+      "skill_education",
+    ], // Updated connections
+    color: "#639bff",
+    strokeColor: "#639bff",
+    portfolioData: portfolioData.experience,
   },
   {
     id: "skills",
-    label: "Skills",
-    description: "Languages & Frameworks",
+    label: portfolioData.skills.label,
+    description: portfolioData.skills.description,
     position: { x: 0, y: 200 },
     level: 1,
     angle: Math.PI / 2,
     isActive: false,
     isHovered: false,
-    connections: ["center", "frontend", "backend"],
-    color: "#b32428",
-    strokeColor: "#b32428",
+    connections: ["center"], // Updated connections - no child nodes for skills
+    color: "#bd140b",
+    strokeColor: "#bd140b",
+    portfolioData: portfolioData.skills,
   },
   {
     id: "contact",
-    label: "Contact",
-    description: "Get in touch",
+    label: portfolioData.contact.label,
+    description: portfolioData.contact.description,
     position: { x: -200, y: 0 },
     level: 1,
     angle: Math.PI,
     isActive: false,
     isHovered: false,
     connections: ["center"],
-    color: "#d4af37",
-    strokeColor: "#d4af37",
+    color: "#8f563b",
+    strokeColor: "#8f563b",
+    portfolioData: portfolioData.contact,
   },
-  // Second level nodes
+  // Project nodes - evenly distributed on outer orbital (radius 350px) - 8 nodes total, 45° apart
   {
-    id: "web-projects",
-    label: "Web Apps",
-    description: "Full-stack applications",
-    position: { x: -100, y: -300 },
+    id: "project_syncer",
+    label: portfolioData.project_syncer.label,
+    description: portfolioData.project_syncer.description,
+    position: { x: 0, y: -350 }, // 0° (top)
     level: 2,
-    angle: -2.356,
+    angle: -Math.PI / 2, // -90 degrees
     isActive: false,
     isHovered: false,
     connections: ["projects"],
-    color: "#2e9a8c",
-    strokeColor: "#2e9a8c",
+    color: "#696a6a",
+    strokeColor: "#696a6a",
+    portfolioData: portfolioData.project_syncer,
   },
   {
-    id: "mobile-projects",
-    label: "Mobile",
-    description: "iOS & Android apps",
-    position: { x: 100, y: -300 },
+    id: "project_f1",
+    label: portfolioData.project_f1.label,
+    description: portfolioData.project_f1.description,
+    position: { x: 247, y: -247 }, // 45° clockwise from top
     level: 2,
-    angle: -0.785,
+    angle: -0.785, // -45 degrees
     isActive: false,
     isHovered: false,
     connections: ["projects"],
-    color: "#2e9a8c",
-    strokeColor: "#2e9a8c",
+    color: "#75645d",
+    strokeColor: "#75645d",
+    portfolioData: portfolioData.project_f1,
   },
   {
-    id: "frontend",
-    label: "Frontend",
-    description: "React, Vue, Angular",
-    position: { x: -100, y: 300 },
+    id: "project_lstm",
+    label: portfolioData.project_lstm.label,
+    description: portfolioData.project_lstm.description,
+    position: { x: 350, y: 0 }, // 90° clockwise from top (right side)
     level: 2,
-    angle: 2.356,
+    angle: 0, // 0 degrees
     isActive: false,
     isHovered: false,
-    connections: ["skills"],
-    color: "#d65a1f",
-    strokeColor: "#d65a1f",
+    connections: ["projects"],
+    color: "#75645d",
+    strokeColor: "#75645d",
+    portfolioData: portfolioData.project_lstm,
   },
   {
-    id: "backend",
-    label: "Backend",
-    description: "Node.js, Python, Go",
-    position: { x: 100, y: 300 },
+    id: "project_ss",
+    label: portfolioData.project_ss.label,
+    description: portfolioData.project_ss.description,
+    position: { x: 247, y: 247 }, // 135° clockwise from top
     level: 2,
-    angle: 0.785,
+    angle: 0.785, // 45 degrees
     isActive: false,
     isHovered: false,
-    connections: ["skills"],
-    color: "#d65a1f",
-    strokeColor: "#d65a1f",
+    connections: ["projects"],
+    color: "#75645d",
+    strokeColor: "#75645d",
+    portfolioData: portfolioData.project_ss,
   },
   {
-    id: "education",
-    label: "Education",
-    description: "Academic background",
-    position: { x: 300, y: -100 },
+    id: "project_recipelens",
+    label: portfolioData.project_recipelens.label,
+    description: portfolioData.project_recipelens.description,
+    position: { x: 0, y: 350 }, // 180° clockwise from top (bottom)
     level: 2,
-    angle: -0.464,
+    angle: 1.571, // 90 degrees
+    isActive: false,
+    isHovered: false,
+    connections: ["projects"],
+    color: "#696a6a",
+    strokeColor: "#696a6a",
+    portfolioData: portfolioData.project_recipelens,
+  },
+  // Experience nodes - positioned on outer orbital (radius 350px from center) with better spacing
+  {
+    id: "experience_vertige",
+    label: portfolioData.experience_vertige.label,
+    description: portfolioData.experience_vertige.description,
+    position: { x: -247, y: 247 }, // 225° clockwise from top
+    level: 2,
+    angle: 2.356, // 135 degrees
     isActive: false,
     isHovered: false,
     connections: ["experience"],
-    color: "#c656a0",
-    strokeColor: "#c656a0",
+    color: "#75645d",
+    strokeColor: "#75645d",
+    portfolioData: portfolioData.experience_vertige,
+  },
+  {
+    id: "experience_owh",
+    label: portfolioData.experience_owh.label,
+    description: portfolioData.experience_owh.description,
+    position: { x: -350, y: 0 }, // 270° clockwise from top (left side)
+    level: 2,
+    angle: 3.142, // 180 degrees
+    isActive: false,
+    isHovered: false,
+    connections: ["experience"],
+    color: "#696a6a",
+    strokeColor: "#696a6a",
+    portfolioData: portfolioData.experience_owh,
+  },
+  {
+    id: "skill_education",
+    label: portfolioData.skill_education.label,
+    description: portfolioData.skill_education.description,
+    position: { x: -247, y: -247 }, // 315° clockwise from top
+    level: 2,
+    angle: -2.356, // -135 degrees
+    isActive: false,
+    isHovered: false,
+    connections: ["experience"],
+    color: "#696a6a",
+    strokeColor: "#696a6a",
+    portfolioData: portfolioData.skill_education,
   },
 ];
 
@@ -168,6 +241,8 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
   activeNodeId: "center",
   hoveredNodeId: null,
   canvasSize: { width: 800, height: 600 },
+  isDetailModalOpen: false,
+  detailModalNodeId: null,
 
   setActiveNode: (nodeId) =>
     set((state) => ({
@@ -195,4 +270,16 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
         node.id === nodeId ? { ...node, position } : node
       ),
     })),
+
+  openDetailModal: (nodeId) =>
+    set({
+      isDetailModalOpen: true,
+      detailModalNodeId: nodeId,
+    }),
+
+  closeDetailModal: () =>
+    set({
+      isDetailModalOpen: false,
+      detailModalNodeId: null,
+    }),
 }));
