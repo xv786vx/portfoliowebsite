@@ -87,7 +87,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ isOpen, nodeData, onClose }) 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.3, type: "spring", damping: 25, stiffness: 300 }}
-            className="bg-black/40 rounded-lg max-w-6xl h-[95%] w-full mx-4 overflow-hidden font-pixelify"
+            className="bg-black/40 text-white rounded-lg max-w-6xl h-[95%] w-full mx-4 overflow-hidden font-pixelify"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

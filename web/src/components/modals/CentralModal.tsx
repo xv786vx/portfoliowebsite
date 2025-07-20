@@ -20,19 +20,19 @@ const CentralModal: React.FC<CentralModalProps> = ({ nodeData }) => {
           <h3 className="text-2xl font-semibold text-white mb-6 font-pixelify">About Me</h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {nodeData.details.location && (
-              <div className="rounded-lg p-4 border border-gray-700">
+              <div className="rounded-none p-4 border-2 border-gray-600 hover:border-blue-500 hover:bg-blue-900/10 transition-all duration-200">
                 <h4 className="text-lg font-semibold text-white mb-2">📍 Location</h4>
                 <p className="text-gray-300">{nodeData.details.location}</p>
               </div>
             )}
             {nodeData.details.yearsExperience && (
-              <div className="rounded-lg p-4 border border-gray-700">
+              <div className="rounded-none p-4 border-2 border-gray-600 hover:border-green-500 hover:bg-green-900/10 transition-all duration-200">
                 <h4 className="text-lg font-semibold text-white mb-2">💼 Experience</h4>
                 <p className="text-gray-300">{nodeData.details.yearsExperience}</p>
               </div>
             )}
             {nodeData.details.availability && (
-              <div className="rounded-lg p-4 border border-gray-700">
+              <div className="rounded-none p-4 border-2 border-gray-600 hover:border-green-500 hover:bg-green-900/10 transition-all duration-200">
                 <h4 className="text-lg font-semibold text-white mb-2">✅ Status</h4>
                 <p className="text-green-400">{nodeData.details.availability}</p>
               </div>
@@ -67,7 +67,7 @@ const CentralModal: React.FC<CentralModalProps> = ({ nodeData }) => {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-400 hover:scale-105 text-white rounded-none border-2 border-blue-400 transition-all duration-200 flex items-center gap-2 font-mono shadow-lg"
                 style={{
                   cursor: `url(${rocketHoverCursor}) 16 16, pointer`
                 }}

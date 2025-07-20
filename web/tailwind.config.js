@@ -4,15 +4,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        red: "#b32428",
-        orange: "#d65a1f",
-        yellow: "#d$af37",
-        teal: "#2e9a8c",
-        green: "#3a844b",
-        blue: "#295b9c",
-        indigo: "#44377a",
-        purple: "#6c3ba4",
-        pink: "#c656ao",
+        skillsred: "#bd140b",
+        centralpink: "#ff3e5b",
+        projectsgreen: "#36732e",
+        expblue: "639bff",
+        contactbrown: "8f563b",
+        project1grey: "696a6a",
+        project2grey: "75645d",
       },
 
       fontFamily: {

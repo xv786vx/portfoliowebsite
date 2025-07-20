@@ -4,7 +4,6 @@
     "label": "Firas Adnan Jalil",
     "description": "Computer Science Undergrad",
     "extended_desc": "Hey, I'm Firas 👋 I'm a 2nd year Computer Science student at the University of Toronto. I love working on projects with a focus on frontend design and machine learning. I love building and being able to express my ideas through different mediums, like programming and pixel art (I drew all the pixel assets used here). I also enjoy music, videogames (Path of Exile, Rocket League, Tetris) and badminton, and I'm constantly trying to learn new skills to bring more of my ideas to life!",
-    "images": ["/assets/profile.jpg"],
     "links": [
       {
         "label": "GitHub",
@@ -23,163 +22,148 @@
       }
     ],
     "details": {
-      "location": "Iraq, Baghdad",
-      "email": "firas@example.com",
-      "availability": "Open to opportunities",
-      "yearsExperience": "5+",
-      "specialties": [
-        "Full-Stack Development",
-        "UI/UX Design",
-        "System Architecture"
-      ]
+      "location": "Toronto",
+      "email": "firas.aj76@gmail.com",
+      "availability": "Open to opportunities"
     }
   },
   "projects": {
     "id": "projects",
     "label": "Projects",
     "description": "Portfolio & Commercial Work",
-    "extended_desc": "A comprehensive collection of full-stack applications, mobile projects, and open-source contributions that showcase my technical expertise and problem-solving abilities. Each project represents a unique challenge and demonstrates different aspects of modern software development.",
+    "extended_desc": "All the projects I've worked on, exploring different fields I'm interested in. Click on any project node to see detailed information, technologies used, and live demos.",
     "featured_projects": [
       {
         "name": "SYNCER",
-        "description": "Full-stack Chrome extension for data synchronization",
-        "technologies": [
-          "React",
-          "Node.js",
-          "Chrome APIs",
-          "Firebase",
-          "TypeScript"
-        ],
-        "images": ["/assets/syncer-1.jpg", "/assets/syncer-2.jpg"],
-        "github": "https://github.com/xv786vx/syncer",
-        "live_demo": "https://chrome.google.com/webstore/detail/syncer",
-        "highlights": [
-          "Real-time data synchronization",
-          "Cross-platform compatibility",
-          "Secure data encryption",
-          "Over 1000+ active users",
-          "4.8/5 star rating on Chrome Web Store"
-        ],
-        "duration": "4 months",
-        "role": "Full-Stack Developer"
+        "description": "Chrome extension for playlist synchronization",
+        "link": "https://getsyncer.tech"
+      },
+      {
+        "name": "Study Showdown",
+        "description": "Productivity gamification Chrome extension + web app",
+        "link": "https://github.com/WaterBoi06/HT6-Study-Showdown-"
+      },
+      {
+        "name": "RecipeLens",
+        "description": "Award-winning Flutter recipe app (Best UI/UX)",
+        "link": "https://github.com/cy1der/ignitionv4"
+      },
+      {
+        "name": "LSTM Stock Predictor",
+        "description": "ML-driven stock forecasting and backtesting tool",
+        "link": "https://colab.research.google.com/drive/1y50I3hDfcc55mXrFq70Ukbm15e1gLC-V"
       },
       {
         "name": "F1 Graph Visualizer",
-        "description": "Python data visualization tool for Formula 1 analytics",
-        "technologies": [
-          "Python",
-          "Pandas",
-          "Matplotlib",
-          "Plotly",
-          "FastF1 API"
-        ],
-        "images": ["/assets/f1-viz-1.jpg", "/assets/f1-viz-2.jpg"],
-        "github": "https://github.com/xv786vx/f1-visualizer",
-        "live_demo": "https://f1-visualizer.streamlit.app",
-        "highlights": [
-          "Real-time race data analysis",
-          "Interactive telemetry charts",
-          "Historical performance comparison",
-          "Used by F1 enthusiasts worldwide",
-          "Featured on r/Formula1 subreddit"
-        ],
-        "duration": "2 months",
-        "role": "Data Scientist/Developer"
+        "description": "Python data visualization for Formula 1 analytics",
+        "link": "https://github.com/xv786vx/csc111-project2"
       }
     ],
     "stats": {
-      "totalProjects": 15,
-      "liveProjects": 8,
-      "githubStars": 234,
-      "contributions": 500
+      "totalProjects": 5,
+      "liveProjects": 3,
+      "githubRepos": 15,
+      "hackathonWins": 1
     }
   },
   "experience": {
     "id": "experience",
     "label": "Experience",
-    "description": "5+ Years Development",
-    "extended_desc": "My professional journey spans over 5 years of hands-on software development experience across various industries and project scales. From startup environments to enterprise solutions, I've consistently delivered high-quality software that meets business objectives and user needs.",
+    "description": "Internships & Development",
+    "extended_desc": "My professional journey includes diverse internship experiences across financial technology and mobile app development. Click on experience nodes to see detailed achievements, technologies used, and skills gained.",
     "positions": [
       {
-        "title": "Senior Full-Stack Developer",
-        "company": "Tech Solutions Inc.",
-        "duration": "2022 - Present",
-        "location": "Remote",
-        "description": "Leading development of scalable web applications and mentoring junior developers.",
-        "achievements": [
-          "Architected microservices infrastructure serving 100k+ users",
-          "Reduced application load time by 60% through optimization",
-          "Mentored 5 junior developers",
-          "Implemented CI/CD pipeline reducing deployment time by 80%"
-        ],
-        "technologies": ["React", "Node.js", "AWS", "Docker", "Kubernetes"]
+        "title": "Data Analyst Intern",
+        "company": "Vertige Investment Group",
+        "duration": "September 2024 - January 2025",
+        "location": "Toronto, ON",
+        "description": "Machine learning and quantitative finance"
       },
       {
-        "title": "Frontend Developer",
-        "company": "Digital Agency Co.",
-        "duration": "2020 - 2022",
-        "location": "Baghdad, Iraq",
-        "description": "Developed responsive web applications and collaborated with design teams.",
-        "achievements": [
-          "Built 20+ responsive websites with 98% client satisfaction",
-          "Implemented modern frontend architecture with React",
-          "Collaborated with UX team to improve user engagement by 40%",
-          "Established frontend coding standards and best practices"
-        ],
-        "technologies": ["React", "Vue.js", "SASS", "Webpack", "Git"]
+        "title": "Mobile Developer Intern",
+        "company": "Our Wave Hub",
+        "duration": "June 2022 - August 2022",
+        "location": "Toronto, ON",
+        "description": "iOS app development and UI/UX design"
       }
     ],
-    "skills_gained": [
-      "Team Leadership",
-      "Project Management",
-      "System Architecture",
-      "Code Review",
-      "Mentoring"
-    ]
+    "summary": {
+      "totalInternships": 2,
+      "technologiesLearned": 15,
+      "projectsCompleted": 3,
+      "skillsGained": 8
+    }
   },
   "skills": {
     "id": "skills",
     "label": "Skills",
-    "description": "Languages & Frameworks",
-    "extended_desc": "A comprehensive skill set covering modern web technologies, programming languages, and development tools. I stay current with the latest industry trends and continuously expand my expertise through hands-on projects and continuous learning.",
+    "description": "Languages & Technologies",
+    "extended_desc": "A comprehensive skill set covering modern web technologies, machine learning frameworks, mobile development, and data analysis tools. Built through hands-on project development, internship experiences, and continuous learning in AI and full-stack development.",
     "categories": [
+      {
+        "name": "Programming Languages",
+        "technologies": [
+          { "name": "Python", "level": "Advanced", "years": 3 },
+          { "name": "JavaScript", "level": "Advanced", "years": 3 },
+          { "name": "TypeScript", "level": "Advanced", "years": 2 },
+          { "name": "Swift", "level": "Intermediate", "years": 1 },
+          { "name": "Dart", "level": "Beginner", "years": 1 }
+        ]
+      },
       {
         "name": "Frontend Development",
         "technologies": [
-          { "name": "React", "level": "Expert", "years": 4 },
-          { "name": "Vue.js", "level": "Advanced", "years": 3 },
-          { "name": "Angular", "level": "Intermediate", "years": 2 },
-          { "name": "TypeScript", "level": "Expert", "years": 4 },
-          { "name": "JavaScript", "level": "Expert", "years": 5 },
-          { "name": "HTML/CSS", "level": "Expert", "years": 5 }
+          { "name": "React", "level": "Advanced", "years": 3 },
+          { "name": "NextJS", "level": "Advanced", "years": 2 },
+          { "name": "TailwindCSS", "level": "Advanced", "years": 2 },
+          { "name": "HTML/CSS", "level": "Advanced", "years": 4 },
+          { "name": "Flutter", "level": "Beginner", "years": 1 },
+          { "name": "Figma", "level": "Intermediate", "years": 2 }
         ]
       },
       {
-        "name": "Backend Development",
+        "name": "Backend & APIs",
         "technologies": [
-          { "name": "Node.js", "level": "Expert", "years": 4 },
-          { "name": "Python", "level": "Advanced", "years": 3 },
-          { "name": "Express.js", "level": "Expert", "years": 4 },
           { "name": "FastAPI", "level": "Advanced", "years": 2 },
-          { "name": "PostgreSQL", "level": "Advanced", "years": 3 },
-          { "name": "MongoDB", "level": "Advanced", "years": 3 }
+          { "name": "Flask", "level": "Intermediate", "years": 1 },
+          { "name": "Node.js", "level": "Intermediate", "years": 2 },
+          { "name": "OAuth 2.0", "level": "Intermediate", "years": 1 },
+          { "name": "REST APIs", "level": "Advanced", "years": 3 },
+          { "name": "Auth0", "level": "Beginner", "years": 1 }
         ]
       },
       {
-        "name": "Tools & DevOps",
+        "name": "Machine Learning & Data",
         "technologies": [
-          { "name": "Docker", "level": "Advanced", "years": 3 },
-          { "name": "AWS", "level": "Intermediate", "years": 2 },
-          { "name": "Git", "level": "Expert", "years": 5 },
-          { "name": "CI/CD", "level": "Advanced", "years": 2 },
-          { "name": "Linux", "level": "Advanced", "years": 4 }
+          { "name": "TensorFlow", "level": "Advanced", "years": 2 },
+          { "name": "Scikit-Learn", "level": "Advanced", "years": 2 },
+          { "name": "Pandas", "level": "Advanced", "years": 3 },
+          { "name": "NumPy", "level": "Advanced", "years": 3 },
+          { "name": "Matplotlib", "level": "Advanced", "years": 2 },
+          { "name": "Plotly", "level": "Intermediate", "years": 1 }
+        ]
+      },
+      {
+        "name": "Databases & Cloud",
+        "technologies": [
+          { "name": "MongoDB", "level": "Beginner", "years": 2 },
+          { "name": "MongoDB Atlas", "level": "Beginner", "years": 1 },
+          { "name": "Prisma", "level": "Intermediate", "years": 1 },
+          { "name": "Supabase", "level": "Intermediate", "years": 1 },
+          { "name": "PostgreSQL", "level": "Intermediate", "years": 1 }
+        ]
+      },
+      {
+        "name": "Tools & Development",
+        "technologies": [
+          { "name": "Git", "level": "Advanced", "years": 4 },
+          { "name": "Xcode", "level": "Intermediate", "years": 1 },
+          { "name": "Android Studio", "level": "Intermediate", "years": 1 },
+          { "name": "Chrome Extensions", "level": "Advanced", "years": 2 },
+          { "name": "Vercel", "level": "Intermediate", "years": 2 },
+          { "name": "Render", "level": "Intermediate", "years": 1 }
         ]
       }
-    ],
-    "certifications": [
-      "AWS Solutions Architect Associate",
-      "React Developer Certification",
-      "Kubernetes Administrator"
     ]
   },
   "contact": {
@@ -190,68 +174,46 @@
     "contact_methods": [
       {
         "type": "email",
-        "value": "firas@example.com",
+        "value": "firas.aj76@gmail.com",
         "label": "Email",
         "preferred": true
       },
       {
-        "type": "phone",
-        "value": "+964 XXX XXX XXXX",
-        "label": "Phone"
-      },
-      {
         "type": "linkedin",
-        "value": "https://linkedin.com/in/firasjalil",
+        "value": "https://linkedin.com/in/firas-adnan-jalil",
         "label": "LinkedIn"
       },
       {
         "type": "github",
-        "value": "https://github.com/firasjalil",
+        "value": "https://github.com/xv786vx",
         "label": "GitHub"
       }
-    ],
-    "availability": {
-      "status": "Available for opportunities",
-      "types": ["Full-time", "Contract", "Consulting"],
-      "timezone": "GMT+3 (Baghdad)",
-      "response_time": "Within 24 hours"
-    },
-    "services": [
-      "Full-Stack Development",
-      "Frontend Development",
-      "Backend API Development",
-      "Technical Consultation",
-      "Code Review & Mentoring"
     ]
   },
   "project_syncer": {
     "id": "project_syncer",
     "label": "SYNCER",
     "description": "Full-stack Chrome Extension",
-    "extended_desc": "A powerful Chrome extension that synchronizes data across multiple platforms. Built with modern web technologies and Chrome APIs to provide seamless user experience and real-time data synchronization.",
+    "extended_desc": "SYNCER is a Chrome extension that syncs playlists between Spotify and YouTube. It parses each song, applies tokenization, fuzzy matching, and Levenshtein distance to find the best cross-platform match, and handles OAuth authentication via a FastAPI backend. I built SYNCER for a few reasons; I wanted to keep my playlists updated on multiple platforms with little effort, I wanted to build and deploy a Chrome extension, and I wanted to learn how to use new technologies like FastAPI. Thus, SYNCER was created!",
     "technologies": [
       "React",
-      "Node.js",
-      "Chrome APIs",
-      "Firebase",
-      "TypeScript"
+      "FastAPI",
+      "YouTube Data API",
+      "Spotify API",
+      "OAuth 2.0"
     ],
-    "github": "https://github.com/xv786vx/syncer",
+    "link": "https://getsyncer.tech",
     "live_demo": "https://chrome.google.com/webstore/detail/syncer",
     "features": [
-      "Real-time data synchronization",
-      "Cross-platform compatibility",
-      "Secure data encryption",
-      "User-friendly interface",
-      "Offline functionality"
+      "Two-way playlist synchronization between Spotify and YouTube",
+      "Fuzzy matching and Levenshtein scoring for accurate track detection",
+      "Skips already-synced songs to avoid duplicates",
+      "Manual search support for low-confidence matches",
+      "Simple and responsive React-based UI",
+      "Secure OAuth login and token management"
     ],
-    "duration": "4 months",
-    "role": "Full-Stack Developer",
-    "highlights": [
-      "Over 1000+ active users",
-      "4.8/5 star rating on Chrome Web Store",
-      "Featured in Chrome Developer Showcase"
-    ]
+    "duration": "6 months",
+    "role": "Creator"
   },
   "project_f1": {
     "id": "project_f1",
@@ -259,8 +221,7 @@
     "description": "Python Data Visualization",
     "extended_desc": "A comprehensive Formula 1 data visualization tool built with Python. Analyzes race data, driver performance, and historical trends using advanced data science techniques and interactive visualizations.",
     "technologies": ["Python", "Pandas", "Matplotlib", "Plotly", "FastF1 API"],
-    "github": "https://github.com/xv786vx/f1-visualizer",
-    "live_demo": "https://f1-visualizer.streamlit.app",
+    "link": "https://github.com/xv786vx/csc111-project2",
     "features": [
       "Real-time race data analysis",
       "Interactive telemetry charts",
@@ -269,155 +230,157 @@
       "Driver championship predictions"
     ],
     "duration": "2 months",
-    "role": "Data Scientist/Developer",
-    "highlights": [
-      "Used by F1 enthusiasts worldwide",
-      "Featured on r/Formula1 subreddit",
-      "Accurate prediction models"
-    ]
+    "role": "Data Scientist/Developer"
   },
   "project_lstm": {
     "id": "project_lstm",
-    "label": "LSTM Visualizer",
-    "description": "Python Data Visualization",
-    "extended_desc": "A comprehensive Formula 1 data visualization tool built with Python. Analyzes race data, driver performance, and historical trends using advanced data science techniques and interactive visualizations.",
-    "technologies": ["Python", "Pandas", "Matplotlib", "Plotly", "FastF1 API"],
-    "github": "https://github.com/xv786vx/f1-visualizer",
-    "live_demo": "https://f1-visualizer.streamlit.app",
+    "label": "LSTM Stock Predictor",
+    "description": "AI-Powered Stock Forecasting & Strategy Backtesting",
+    "extended_desc": "A machine learning-driven tool that predicts stock prices using LSTM neural networks and backtests trading strategies with dynamic portfolio simulation. I had always wanted to build something that utilized neural networks and applied to financial markets since I loved that intersection of ideas, and this was my first foray into it! It will be constantly improved on and updated as I learn more about building neural networks, preprocessing data and synthesizing meaningful results from different implementations.",
+    "technologies": [
+      "Python",
+      "TensorFlow",
+      "Pandas",
+      "Matplotlib",
+      "yFinance"
+    ],
+    "link": "https://colab.research.google.com/drive/1y50I3hDfcc55mXrFq70Ukbm15e1gLC-V?usp=sharing",
     "features": [
-      "Real-time race data analysis",
-      "Interactive telemetry charts",
-      "Historical performance comparison",
-      "Lap time analysis",
-      "Driver championship predictions"
+      "LSTM-based stock price prediction with multi-ticker support",
+      "Technical indicator engineering (RSI, EMA, VWAP, volatility, etc.)",
+      "Normalization and sequence generation for time series forecasting",
+      "Realistic backtesting with cash, holdings, position tracking, and portfolio value",
+      "Trading signal generation based on predicted vs. actual prices",
+      "Performance metrics including Sharpe Ratio and Max Drawdown"
     ],
     "duration": "2 months",
-    "role": "Data Scientist/Developer",
-    "highlights": [
-      "Used by F1 enthusiasts worldwide",
-      "Featured on r/Formula1 subreddit",
-      "Accurate prediction models"
-    ]
+    "role": "Machine Learning Developer"
   },
   "project_ss": {
     "id": "project_ss",
     "label": "Study Showdown",
-    "description": "Python Data Visualization",
-    "extended_desc": "A comprehensive Formula 1 data visualization tool built with Python. Analyzes race data, driver performance, and historical trends using advanced data science techniques and interactive visualizations.",
-    "technologies": ["Python", "Pandas", "Matplotlib", "Plotly", "FastF1 API"],
-    "github": "https://github.com/xv786vx/f1-visualizer",
-    "live_demo": "https://f1-visualizer.streamlit.app",
-    "features": [
-      "Real-time race data analysis",
-      "Interactive telemetry charts",
-      "Historical performance comparison",
-      "Lap time analysis",
-      "Driver championship predictions"
+    "description": "Chrome Extension & Web App",
+    "extended_desc": "Study Showdown incentivizes staying on track with studying by tracking the sites each user visits in a given period. Built for Hack the 6ix 2024, this Chrome Extension connects to a NextJS website to gamify productivity. By staying on studying and productivity-based domains like KhanAcademy, you earn points, and by going on unproductive websites, you lose points. At the end of each session, your points are calculated and ranked amongst other users on a global leaderboard!",
+    "technologies": [
+      "NextJS",
+      "TypeScript + JavaScript",
+      "React",
+      "TailwindCSS",
+      "Auth0",
+      "Google Auth",
+      "MongoDB Atlas",
+      "Prisma"
     ],
-    "duration": "2 months",
-    "role": "Data Scientist/Developer",
+    "link": "https://github.com/WaterBoi06/HT6-Study-Showdown-",
+    "features": [
+      "Chrome Extension that tracks tab activity and browsing behavior",
+      "Point-based scoring system for productive vs unproductive websites",
+      "Global leaderboard ranking users by study session performance",
+      "Full-stack NextJS website with user authentication",
+      "Real-time data synchronization between extension and website",
+      "Gamified studying experience to combat burnout and increase motivation"
+    ],
+    "duration": "Hackathon project (3 days)",
+    "role": "Frontend Developer",
     "highlights": [
-      "Used by F1 enthusiasts worldwide",
-      "Featured on r/Formula1 subreddit",
-      "Accurate prediction models"
+      "Submitted to Hack the 6ix 2024",
+      "Built dual-platform app (Chrome Extension + Web)",
+      "Implemented complex authentication flow with Auth0",
+      "Connected multiple backends using Prisma and MongoDB",
+      "Collaborative project with 4-person development team"
     ]
   },
   "project_recipelens": {
     "id": "project_recipelens",
-    "label": "RecipeLens - Hackathon Winner",
-    "description": "Python Data Visualization",
-    "extended_desc": "A comprehensive Formula 1 data visualization tool built with Python. Analyzes race data, driver performance, and historical trends using advanced data science techniques and interactive visualizations.",
-    "technologies": ["Python", "Pandas", "Matplotlib", "Plotly", "FastF1 API"],
-    "github": "https://github.com/xv786vx/f1-visualizer",
-    "live_demo": "https://f1-visualizer.streamlit.app",
+    "label": "RecipeLens",
+    "description": "Flutter Mobile App - Best UI/UX Winner",
+    "extended_desc": "RecipeLens is a mobile app designed to help users discover recipes based on available ingredients while accommodating dietary restrictions. Whether you're a college student with limited ingredients, a parent figuring out meals for children, or a professional cook looking to sharpen skills, RecipeLens provides high-quality recipes in an accessible way. The app won Best UI/UX at Ignition Hacks 2023, showcasing exceptional design and user experience despite being built by a team with no prior Flutter experience.",
+    "technologies": [
+      "Flutter",
+      "Dart",
+      "Android Studio",
+      "Edamam API",
+      "Spoonacular API",
+      "Figma"
+    ],
+    "link": "https://github.com/cy1der/ignitionv4",
+    "live_demo": "https://youtu.be/FqT2UZ11g0Y",
     "features": [
-      "Real-time race data analysis",
-      "Interactive telemetry charts",
-      "Historical performance comparison",
-      "Lap time analysis",
-      "Driver championship predictions"
+      "Ingredient-based recipe search using dual API integration",
+      "Dietary restriction filtering for inclusive meal planning",
+      "Text-to-speech functionality for hands-free cooking",
+      "Cross-platform support for both Android and iOS",
+      "Intuitive UI/UX design optimized for mobile cooking experience",
+      "Real-time recipe filtering and ingredient matching"
     ],
-    "duration": "2 months",
-    "role": "Data Scientist/Developer",
+    "duration": "Hackathon project (3 days)",
+    "role": "UI/UX Designer & Full-Stack Developer",
     "highlights": [
-      "Used by F1 enthusiasts worldwide",
-      "Featured on r/Formula1 subreddit",
-      "Accurate prediction models"
+      "🏆 Winner: Best UI/UX at Ignition Hacks 2023",
+      "Built entire Flutter app with no prior Dart/Flutter experience",
+      "Integrated dual APIs (Edamam + Spoonacular) for comprehensive recipe data"
     ]
   },
-  "experience_internship": {
-    "id": "experience_internship",
-    "label": "Software Engineering Intern",
-    "description": "Summer 2024 Internship",
-    "extended_desc": "Gained hands-on experience in full-stack development during a 3-month summer internship at a leading tech company. Worked closely with senior developers on real-world projects and contributed to production-level code.",
+  "experience_vertige": {
+    "id": "experience_vertige",
+    "label": "Data Analyst Intern",
+    "description": "Vertige Investment Group",
+    "extended_desc": "Gained comprehensive experience in financial analysis and machine learning during my internship at Vertige Investment Group, a finance organization based out of the University of Toronto. Worked on DCF valuations, built predictive models for stock price forecasting, and developed trading strategies backed by machine learning algorithms.",
     "positions": [
       {
-        "title": "Software Engineering Intern",
-        "company": "TechCorp Solutions",
-        "duration": "June 2024 - August 2024",
-        "location": "Remote",
-        "description": "Developed and maintained web applications using modern JavaScript frameworks and backend technologies.",
-        "achievements": [
-          "Built a customer dashboard that improved user engagement by 25%",
-          "Optimized database queries reducing page load time by 40%",
-          "Contributed to 3 major feature releases",
-          "Received excellent performance review with offer to return"
-        ],
-        "technologies": ["React", "Node.js", "PostgreSQL", "AWS", "Git"]
-      }
-    ],
-    "skills_gained": [
-      "Agile Development",
-      "Code Review Process",
-      "Production Deployment",
-      "Team Collaboration",
-      "Client Communication"
-    ],
-    "projects": [
-      {
-        "name": "Customer Analytics Dashboard",
-        "description": "Interactive dashboard for customer behavior analysis",
-        "technologies": ["React", "Chart.js", "Express.js", "PostgreSQL"],
-        "role": "Frontend Developer",
-        "duration": "6 weeks"
-      }
-    ]
-  },
-  "experience_research": {
-    "id": "experience_research",
-    "label": "Research Assistant",
-    "description": "University Research Position",
-    "extended_desc": "Worked as a research assistant in the Computer Vision lab, focusing on machine learning applications for image processing and pattern recognition. Contributed to published research and gained deep understanding of ML algorithms.",
-    "positions": [
-      {
-        "title": "Undergraduate Research Assistant",
-        "company": "University of Toronto - CV Lab",
-        "duration": "September 2023 - Present",
+        "title": "Data Analyst Intern",
+        "company": "Vertige Investment Group",
+        "duration": "September 2024 - January 2025",
         "location": "Toronto, ON",
-        "description": "Conducting research on computer vision algorithms and their applications in real-world scenarios.",
+        "description": "Performed comprehensive financial analysis and developed machine learning models for stock price prediction and trading strategy optimization.",
         "achievements": [
-          "Co-authored 2 research papers submitted to top-tier conferences",
-          "Improved existing image classification model accuracy by 12%",
-          "Mentored 3 junior undergraduate students",
-          "Presented research findings at university symposium"
+          "Built a stock price regression model using TensorFlow (LSTM, Dense, Dropout layers) achieving 80%+ accuracy in predictions",
+          "Utilized financial statement data, indicator data and valuation multiples to perform DCF valuations",
+          "Developed a Scikit-Learn data preprocessor to refine yfinance market data for improved model performance",
+          "Created a mock trading strategy starting with $10,000, executing buy/sell decisions based on model forecasts",
+          "Presented findings using Matplotlib graphs to 10+ fellow interns and investment team members"
         ],
-        "technologies": ["Python", "TensorFlow", "PyTorch", "OpenCV", "CUDA"]
+        "technologies": [
+          "Python",
+          "TensorFlow",
+          "Scikit-Learn",
+          "yfinance",
+          "Matplotlib",
+          "Pandas",
+          "NumPy"
+        ]
       }
-    ],
-    "skills_gained": [
-      "Research Methodology",
-      "Academic Writing",
-      "Data Analysis",
-      "Machine Learning",
-      "Statistical Analysis"
+    ]
+  },
+  "experience_owh": {
+    "id": "experience_owh",
+    "label": "Mobile Developer Intern",
+    "description": "Our Wave Hub",
+    "extended_desc": "Gained valuable experience in mobile app development and UI/UX design during my internship at Our Wave Hub, a Toronto-based technology incubator. Developed a complete iOS application focused on mental health and wellness, incorporating modern design principles and engaging user experience features.",
+    "positions": [
+      {
+        "title": "Mobile Developer Intern",
+        "company": "Our Wave Hub",
+        "duration": "June 2022 - August 2022",
+        "location": "Toronto, ON",
+        "description": "Designed and developed a comprehensive iOS mental health application using Swift and Xcode, focusing on user engagement and wellness features.",
+        "achievements": [
+          "Developed 'Outpost', a complete iOS mental health application using Xcode and Swift in just 3 weeks",
+          "Used Miro collaborative design platform to create and market a unique brand in the wellness space",
+          "Integrated journaling, daily planning, and gamification features to promote consistent usage and user engagement",
+          "Presented application live to over 160 developers and a panel of OWH directors",
+          "Achieved 5th best application overall out of all intern projects at the program showcase"
+        ],
+        "technologies": ["Swift", "Xcode", "iOS", "Miro", "UI/UX Design"]
+      }
     ],
     "projects": [
       {
-        "name": "Autonomous Object Detection",
-        "description": "ML model for real-time object detection in autonomous vehicles",
-        "technologies": ["Python", "PyTorch", "OpenCV", "CUDA"],
-        "role": "ML Engineer",
-        "duration": "4 months"
+        "name": "Outpost - Mental Health iOS App",
+        "description": "Comprehensive wellness app with journaling, planning, and gamification features",
+        "technologies": ["Swift", "Xcode", "iOS", "Miro"],
+        "role": "Lead Mobile Developer",
+        "duration": "3 weeks"
       }
     ]
   },
@@ -425,40 +388,24 @@
     "id": "skill_education",
     "label": "Education",
     "description": "Academic background",
-    "extended_desc": "Strong academic foundation in computer science combined with continuous learning and professional development. I believe in the importance of both formal education and practical experience in shaping a well-rounded developer.",
+    "extended_desc": "Strong academic foundation in computer science with specialization in Artificial Intelligence at the University of Toronto. Currently pursuing advanced coursework in machine learning, data structures, and software engineering while actively participating in quantitative trading teams and technology organizations.",
     "formal_education": [
       {
         "degree": "Bachelor of Science in Computer Science",
-        "institution": "University of Baghdad",
-        "duration": "2016 - 2020",
-        "gpa": "3.8/4.0",
+        "specialization": "Artificial Intelligence",
+        "institution": "University of Toronto",
+        "duration": "2024 - 2028",
+        "location": "Toronto, ON",
         "relevant_courses": [
-          "Data Structures and Algorithms",
-          "Database Systems",
-          "Software Engineering",
-          "Computer Networks",
-          "Operating Systems"
-        ]
+          "Data Structures and Analysis",
+          "Software Design",
+          "Theory of Computation",
+          "Probability, Statistics, and Data Analysis",
+          "Software Tools and Systems Programming",
+          "Computer Organization"
+        ],
+        "organizations": ["St. George Capital (Quant Trading Team)"]
       }
-    ],
-    "certifications": [
-      {
-        "name": "AWS Solutions Architect Associate",
-        "issuer": "Amazon Web Services",
-        "date": "2023"
-      },
-      {
-        "name": "React Developer Certification",
-        "issuer": "React Training",
-        "date": "2022"
-      }
-    ],
-    "continuous_learning": [
-      "Regular participation in tech conferences",
-      "Online courses and workshops",
-      "Open source contributions",
-      "Technical blog writing",
-      "Mentoring junior developers"
     ]
   }
 }

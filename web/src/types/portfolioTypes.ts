@@ -7,9 +7,9 @@ export interface Link {
 export interface Project {
   name: string;
   description: string;
-  technologies: string[];
+  technologies?: string[]; // Made optional for simplified projects view
   images?: string[];
-  github?: string;
+  link?: string;
   live_demo?: string;
   highlights?: string[];
   duration?: string;
@@ -23,8 +23,8 @@ export interface Position {
   duration: string;
   location: string;
   description: string;
-  achievements: string[];
-  technologies: string[];
+  achievements?: string[]; // Made optional for simplified experience view
+  technologies?: string[]; // Made optional for simplified experience view
 }
 
 export interface Technology {
@@ -46,10 +46,14 @@ export interface Certification {
 
 export interface Education {
   degree: string;
+  specialization?: string;
   institution: string;
   duration: string;
+  location?: string;
+  status?: string;
   gpa?: string;
   relevant_courses?: string[];
+  organizations?: string[];
 }
 
 export interface ContactMethod {
@@ -73,6 +77,7 @@ export interface PortfolioNodeData {
   extended_desc: string;
   images?: string[];
   links?: Link[];
+  link?: string; // For individual project/experience nodes
   details?: {
     location?: string;
     email?: string;
@@ -86,9 +91,18 @@ export interface PortfolioNodeData {
     liveProjects?: number;
     githubStars?: number;
     contributions?: number;
+    githubRepos?: number; // Added for new simplified projects structure
+    hackathonWins?: number; // Added for new simplified projects structure
   };
   positions?: Position[];
   skills_gained?: string[];
+  summary?: {
+    // Added for new simplified experience structure
+    totalInternships?: number;
+    technologiesLearned?: number;
+    projectsCompleted?: number;
+    skillsGained?: number;
+  };
   categories?: SkillCategory[];
   certifications?: Certification[] | string[];
   contact_methods?: ContactMethod[];
@@ -100,6 +114,13 @@ export interface PortfolioNodeData {
   technologies_deep_dive?: Record<string, string>;
   formal_education?: Education[];
   continuous_learning?: string[];
+  // Individual project/experience node fields
+  technologies?: string[];
+  features?: string[];
+  highlights?: string[];
+  duration?: string;
+  role?: string;
+  live_demo?: string;
 }
 
 export interface PortfolioData {
