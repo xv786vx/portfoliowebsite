@@ -4,6 +4,7 @@ import { useSkillTreeStore, type SkillNode as SkillNodeType } from '../store/ski
 import useImage from 'use-image';
 import type Konva from 'konva';
 import { getOrbitalPosition } from '../utils/orbitalPosition';
+import { getStaticPosition } from '../utils/staticPosition';
 
 // Import pixel art sprites at exact target sizes
 import squareSprite from '../assets/nnewcentral240.png'; // Central Node - 240px
@@ -150,12 +151,14 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   scale = 1,
   animationTime = 0
 }) => {
-  const { setActiveNode, setHoveredNode, activeNodeId, openDetailModal } = useSkillTreeStore();
+  const { setActiveNode, setHoveredNode, openDetailModal, uiMode } = useSkillTreeStore();
   const glowRingRef = useRef<Konva.Group>(null);
   const nodeShapeRef = useRef<Konva.Group>(null);
   
-  // Calculate orbital position using shared utility function
-  const { x, y } = getOrbitalPosition(node, centerX, centerY, scale, animationTime);
+  // Calculate position based on UI mode
+  const { x, y } = uiMode === 'orbital' 
+    ? getOrbitalPosition(node, centerX, centerY, scale, animationTime)
+    : getStaticPosition(node, centerX, centerY, scale);
   
   // Animate the glow ring rotation
   useEffect(() => {
@@ -363,13 +366,10 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   };
   
   const handleClick = () => {
-    if (activeNodeId === node.id) {
-      // If clicking on the already active node, open the detail modal
-      openDetailModal(node.id);
-    } else {
-      // Otherwise, set this node as active
-      setActiveNode(node.id);
-    }
+    // Always set this node as active (centers it if not already active)
+    setActiveNode(node.id);
+    // Always open the detail modal immediately
+    openDetailModal(node.id);
   };
   
   const handleMouseEnter = () => {

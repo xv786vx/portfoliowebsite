@@ -6,8 +6,11 @@ import SkillNode from './SkillNode';
 import OrbitalCircles from './OrbitalCircles';
 import ZoomPanStage, { type ZoomPanStageRef } from './ZoomPanStage';
 import DetailModal from './DetailModal';
+import ConnectionLines from './ConnectionLines';
+import UIToggle from './UIToggle';
 import backgroundImage from '../assets/nnewbackground1920_1080.png';
 import { getOrbitalPosition } from '../utils/orbitalPosition';
+import { getStaticPosition } from '../utils/staticPosition';
 
 // Import cursor images (you'll need to create these)
 import rocketCursor from '../assets/cursor32.png';
@@ -30,7 +33,8 @@ const SkillTree: React.FC = () => {
     hoveredNodeId, 
     isDetailModalOpen, 
     detailModalNodeId, 
-    closeDetailModal 
+    closeDetailModal,
+    uiMode
   } = useSkillTreeStore();
   const lastActiveNodeId = useRef<string | null>(null);
   const isInitialLoad = useRef(true);
@@ -51,34 +55,47 @@ const SkillTree: React.FC = () => {
         const centerX = dimensions.width / 2;
         const centerY = dimensions.height / 2;
         
-        // Pause orbital rotation to prevent movement during positioning
-        setIsOrbitalsPaused(true);
+        // Pause orbital rotation to prevent movement during positioning (only needed in orbital mode)
+        if (uiMode === 'orbital') {
+          setIsOrbitalsPaused(true);
+          // Capture the current animation time for paused state
+          pausedAnimationTime.current = animationTime;
+        }
         setIsCenteringWithSpring(true);
         
-        // Capture the current animation time for paused state
-        pausedAnimationTime.current = animationTime;
-        
-        // Get the current animated position (using paused time)
-        const currentPosition = getOrbitalPosition(activeNode, centerX, centerY, scale, pausedAnimationTime.current);
+        // Get the current position based on UI mode
+        const currentPosition = uiMode === 'orbital' 
+          ? getOrbitalPosition(activeNode, centerX, centerY, scale, pausedAnimationTime.current)
+          : getStaticPosition(activeNode, centerX, centerY, scale);
         
         // Instantly center on the node (duration = 0)
         stageRef.current.immediateCenter(currentPosition.x, currentPosition.y);
         
         // Resume orbital motion after a brief delay to ensure positioning is complete
-        setTimeout(() => {
+        // (only needed in orbital mode)
+        if (uiMode === 'orbital') {
+          setTimeout(() => {
+            setIsOrbitalsPaused(false);
+            setIsCenteringWithSpring(false);
+          }, 50); // Very brief delay for clean transition
+        } else {
+          // In static mode, just finish the centering immediately
           setIsOrbitalsPaused(false);
           setIsCenteringWithSpring(false);
-        }, 50); // Very brief delay for clean transition
+        }
       }
     }
     
     lastActiveNodeId.current = activeNodeId;
-  }, [activeNodeId, nodes, dimensions, scale, animationTime]);
+  }, [activeNodeId, nodes, dimensions, scale, animationTime, uiMode]);
 
   // Continuously track the active node's position as it rotates (smooth following)
   useEffect(() => {
     // Don't track during centering, if orbitals are paused, if no active node, or no stage
     if (isCenteringWithSpring || isOrbitalsPaused || !activeNodeId || !stageRef.current) return;
+    
+    // In static mode, don't continuously track since nodes don't move
+    if (uiMode === 'static') return;
     
     const activeNode = nodes.find(node => node.id === activeNodeId);
     if (!activeNode) return;
@@ -89,8 +106,10 @@ const SkillTree: React.FC = () => {
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
     
-    // Get the current animated position and smoothly follow it
-    const currentPosition = getOrbitalPosition(activeNode, centerX, centerY, scale, animationTime);
+    // Get the current position based on UI mode (for smooth following)
+    const currentPosition = uiMode === 'orbital' 
+      ? getOrbitalPosition(activeNode, centerX, centerY, scale, animationTime)
+      : getStaticPosition(activeNode, centerX, centerY, scale);
     
     // Calculate the new stage position for continuous tracking
     const newPos = {
@@ -106,7 +125,7 @@ const SkillTree: React.FC = () => {
     }
     
     // Don't update the spring value during tracking to avoid conflicts
-  }, [animationTime, activeNodeId, nodes, dimensions, scale, isCenteringWithSpring, isOrbitalsPaused]); // Update every frame
+  }, [animationTime, activeNodeId, nodes, dimensions, scale, isCenteringWithSpring, isOrbitalsPaused, uiMode]); // Update every frame
   
   // Handle responsive sizing
   useEffect(() => {
@@ -132,13 +151,36 @@ const SkillTree: React.FC = () => {
 
   // Animation loop for orbital rotation
   useEffect(() => {
+    if (uiMode === 'static') return; // Don't animate in static mode
+    
     const animate = () => {
       setAnimationTime(Date.now());
       requestAnimationFrame(animate);
     };
     const animationId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationId);
-  }, []);
+  }, [uiMode]);
+
+  // Handle UI mode changes - re-center active node when switching modes
+  const prevUIMode = useRef(uiMode);
+  useEffect(() => {
+    if (prevUIMode.current !== uiMode && activeNodeId && stageRef.current) {
+      const activeNode = nodes.find(node => node.id === activeNodeId);
+      if (activeNode) {
+        const centerX = dimensions.width / 2;
+        const centerY = dimensions.height / 2;
+        
+        // Get the current position in the new UI mode
+        const currentPosition = uiMode === 'orbital' 
+          ? getOrbitalPosition(activeNode, centerX, centerY, scale, animationTime)
+          : getStaticPosition(activeNode, centerX, centerY, scale);
+        
+        // Re-center the stage on the active node in its new position
+        stageRef.current.centerOn(currentPosition.x, currentPosition.y);
+      }
+      prevUIMode.current = uiMode;
+    }
+  }, [uiMode, activeNodeId, nodes, dimensions.width, dimensions.height, scale, animationTime]);
   
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
@@ -179,12 +221,22 @@ const SkillTree: React.FC = () => {
     >
       <ZoomPanStage ref={stageRef} width={dimensions.width} height={dimensions.height}>
         <Layer>
-          {/* Orbital guide circles */}
-          <OrbitalCircles 
-            centerX={centerX} 
-            centerY={centerY} 
-            scale={scale}
-          />
+          {/* Conditional rendering based on UI mode */}
+          {uiMode === 'orbital' && (
+            <OrbitalCircles 
+              centerX={centerX} 
+              centerY={centerY} 
+              scale={scale}
+            />
+          )}
+          
+          {uiMode === 'static' && (
+            <ConnectionLines
+              centerX={centerX}
+              centerY={centerY}
+              scale={scale}
+            />
+          )}
           
           {/* Skill nodes */}
           {nodes.map((node) => (
@@ -202,6 +254,9 @@ const SkillTree: React.FC = () => {
       
       {/* Overlay UI for active node details - hide when modal is open */}
       {!isDetailModalOpen && <ActiveNodePanel />}
+
+      {/* UI Mode Toggle */}
+      <UIToggle />
 
       {/* Detail Modal */}
       <DetailModal
@@ -231,7 +286,7 @@ const ActiveNodePanel: React.FC = () => {
   return (
     <motion.div
       style={panelStyle}
-      className="p-6 text-green-400 shadow-2xl text-white font-pixelify"
+      className="p-6 text-green-400 shadow-2xl font-pixelify"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}

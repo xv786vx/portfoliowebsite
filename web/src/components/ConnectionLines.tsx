@@ -1,6 +1,7 @@
 import React from 'react';
 import { Line, Group } from 'react-konva';
 import { useSkillTreeStore } from '../store/skillTreeStore';
+import { getStaticPosition } from '../utils/staticPosition';
 
 interface ConnectionLinesProps {
   centerX: number;
@@ -29,14 +30,18 @@ const ConnectionLines: React.FC<ConnectionLinesProps> = ({
         if (connectedNode) {
           // Only draw each connection once (from lower level to higher level)
           if (node.level <= connectedNode.level) {
+            // Calculate actual rendered positions using static positioning
+            const fromPosition = getStaticPosition(node, centerX, centerY, scale);
+            const toPosition = getStaticPosition(connectedNode, centerX, centerY, scale);
+            
             connections.push({
               from: {
-                x: centerX + node.position.x * scale,
-                y: centerY + node.position.y * scale,
+                x: fromPosition.x,
+                y: fromPosition.y,
               },
               to: {
-                x: centerX + connectedNode.position.x * scale,
-                y: centerY + connectedNode.position.y * scale,
+                x: toPosition.x,
+                y: toPosition.y,
               },
               color: node.isActive || connectedNode.isActive ? 
                 (node.strokeColor || connectedNode.strokeColor || '#ffffff') : '#666666',

@@ -25,6 +25,7 @@ interface SkillTreeState {
   canvasSize: { width: number; height: number };
   isDetailModalOpen: boolean;
   detailModalNodeId: string | null;
+  uiMode: "orbital" | "static"; // Toggle between orbital rotation and static with lines
   setActiveNode: (nodeId: string | null) => void;
   setHoveredNode: (nodeId: string | null) => void;
   setCanvasSize: (size: { width: number; height: number }) => void;
@@ -34,6 +35,7 @@ interface SkillTreeState {
   ) => void;
   openDetailModal: (nodeId: string) => void;
   closeDetailModal: () => void;
+  toggleUIMode: () => void;
 }
 
 // Sample node data for the portfolio
@@ -243,6 +245,7 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
   canvasSize: { width: 800, height: 600 },
   isDetailModalOpen: false,
   detailModalNodeId: null,
+  uiMode: "orbital", // Default to orbital mode
 
   setActiveNode: (nodeId) =>
     set((state) => ({
@@ -282,4 +285,9 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
       isDetailModalOpen: false,
       detailModalNodeId: null,
     }),
+
+  toggleUIMode: () =>
+    set((state) => ({
+      uiMode: state.uiMode === "orbital" ? "static" : "orbital",
+    })),
 }));
