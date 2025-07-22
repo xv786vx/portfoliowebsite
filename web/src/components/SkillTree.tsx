@@ -139,7 +139,7 @@ const SkillTree: React.FC = () => {
         
         // Calculate scale based on available space
         const minDimension = Math.min(width, height);
-        setScale(Math.min(1, minDimension / 600));
+        setScale(Math.min(1, minDimension / 460));
       }
     };
     
@@ -278,40 +278,31 @@ const ActiveNodePanel: React.FC = () => {
   // Position the panel within the canvas area, not outside it
   const panelStyle = {
     position: 'absolute' as const,
-    top: '20px',  // 20px from top of canvas
-    left: '20px', // 20px from left of canvas
-    zIndex: 1000, // Above the canvas
+    top: '5vw',
+    left: '5vw',
+    right: '5vw',
+    zIndex: 1000,
+    maxWidth: '95vw',
+    // boxSizing removed to fix MotionStyle error
   };
   
   return (
     <motion.div
       style={panelStyle}
-      className="p-6 text-green-400 shadow-2xl font-pixelify"
+      className="p-4 sm:p-6 text-green-400 shadow-2xl font-pixelify rounded-lg max-w-full w-full sm:w-auto"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <h3 className="text-2xl font-medium text-white mb-2 tracking-wider uppercase underline underline-offset-4">
+      <h3 className="text-lg sm:text-2xl font-medium text-white mb-2 tracking-wider uppercase underline underline-offset-4 break-words">
         {activeNode.label}
       </h3>
       {activeNode.description && (
-        <p className="text-green-300 text-md mb-4 leading-relaxed">
+        <p className="text-green-300 text-sm sm:text-md mb-2 leading-relaxed break-words">
           {activeNode.description}
         </p>
       )}
-      <div className="flex items-center gap-3 mt-4">
-        <div 
-          className="w-4 h-4 border border-green-500"
-          style={{ 
-            backgroundColor: activeNode.strokeColor || activeNode.color,
-            imageRendering: 'pixelated',
-            borderRadius: '0px'
-          }}
-        />
-        <span className="text-xs text-green-500 uppercase tracking-wide">
-          LEVEL {activeNode.level} NODE
-        </span>
-      </div>
+      <p className="text-xs sm:text-xs text-green-500 uppercase tracking-wide">LEVEL {activeNode.level} NODE</p>
     </motion.div>
   );
 };

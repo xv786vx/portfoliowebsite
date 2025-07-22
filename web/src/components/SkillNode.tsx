@@ -110,11 +110,12 @@ const PixelSprite: React.FC<{
   y: number;
   size: number; // Exact pixel size of the sprite
   onClick?: () => void;
+  onTap?: () => void;
+  onTouchStart?: () => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }> = ({ src, x, y, size, onClick, onMouseEnter, onMouseLeave }) => {
   const [image] = useImage(src);
-  
   return (
     <Image
       image={image}
@@ -123,9 +124,10 @@ const PixelSprite: React.FC<{
       width={size}
       height={size}
       onClick={onClick}
+      onTap={onClick}
+      onTouchStart={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      // Pixel-perfect rendering - no scaling needed
       perfectDrawEnabled={false}
       imageSmoothingEnabled={false}
       pixelRatio={1}
@@ -314,52 +316,51 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   const renderNodeShape = () => {
     const commonProps = {
       onClick: handleClick,
+      onTap: handleClick,
+      onTouchStart: handleClick,
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
     };
 
     switch (node.level) {
-      case 0: // Level 0 - Central node (hexagon 160px)
+      case 0: // Level 0 - Central node (hexagon)
         return (
           <PixelSprite
             {...commonProps}
             src={squareSprite}
             x={0}
             y={0}
-            size={NODE_SIZES.LEVEL_0} // 160px
+            size={NODE_SIZES.LEVEL_0 * scale}
           />
         );
-      
-      case 1: // Level 1 - Category nodes (each with unique hexagon)
+      case 1: // Level 1 - Category nodes
         return (
           <PixelSprite
             {...commonProps}
             src={getCategorySprite(node.id)}
             x={0}
             y={0}
-            size={NODE_SIZES.LEVEL_1} // 108px
+            size={NODE_SIZES.LEVEL_1 * scale}
           />
         );
-      
-      case 2: // Level 2 - Skill nodes (alternating circles 88px)
+      case 2: // Level 2 - Skill nodes
         return (
           <PixelSprite
             {...commonProps}
             src={getChildNodeSprite(node.id)}
             x={0}
             y={0}
-            size={NODE_SIZES.LEVEL_2} // 88px
+            size={NODE_SIZES.LEVEL_2 * scale}
           />
         );
-        
-      default: // Fallback to square (80px)
+      default: // Fallback to square
         return (
           <PixelSprite
             {...commonProps}
             src={squareSprite}
             x={0}
             y={0}
-            size={NODE_SIZES.LEVEL_3} // 80px
+            size={NODE_SIZES.LEVEL_3 * scale}
           />
         );
     }
@@ -450,6 +451,8 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         wrap="word"
         ellipsis={false}
         onClick={handleClick}
+        onTap={handleClick}
+        onTouchStart={handleClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       />

@@ -203,7 +203,7 @@
       "OAuth 2.0"
     ],
     "link": "https://getsyncer.tech",
-    "live_demo": "https://chrome.google.com/webstore/detail/syncer",
+    "live_demo": "https://chromewebstore.google.com/detail/syncer/ggkbmppglbhmcoiplbopfldojdnehabh?authuser=0&hl=en",
     "features": [
       "Two-way playlist synchronization between Spotify and YouTube",
       "Fuzzy matching and Levenshtein scoring for accurate track detection",
