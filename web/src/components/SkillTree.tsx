@@ -275,21 +275,21 @@ const ActiveNodePanel: React.FC = () => {
   
   if (!activeNode) return null;
   
-  // Position the panel within the canvas area, not outside it
+  // Use min-content width and keep panel in the top left corner
   const panelStyle = {
     position: 'absolute' as const,
-    top: '5vw',
-    left: '5vw',
-    right: '5vw',
+    top: '24px',
+    left: '24px',
     zIndex: 1000,
     maxWidth: '95vw',
-    // boxSizing removed to fix MotionStyle error
+    width: 'min-content',
+    minWidth: '200px',
   };
-  
+
   return (
     <motion.div
       style={panelStyle}
-      className="p-4 sm:p-6 text-green-400 shadow-2xl font-pixelify rounded-lg max-w-full w-full sm:w-auto"
+      className="p-3 sm:p-6 text-green-400 shadow-2xl font-pixelify rounded-lg w-fit max-w-[95vw]"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
