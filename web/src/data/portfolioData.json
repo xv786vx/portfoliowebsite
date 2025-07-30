@@ -17,8 +17,8 @@
       },
       {
         "label": "Resume",
-        "url": "https://drive.google.com/file/d/1XPTEwmtLYPLNVPS070tVkXBBrpJfJ4F_/view?usp=drive_link",
-        "icon": "website"
+        "url": "#resume",
+        "icon": "resume"
       }
     ],
     "details": {
@@ -60,10 +60,10 @@
       }
     ],
     "stats": {
-      "totalProjects": 5,
-      "liveProjects": 3,
-      "githubRepos": 15,
-      "hackathonWins": 1
+      "total Projects": 5,
+      "live Projects": 3,
+      "github Repos": 15,
+      "hackathon Wins": 1
     }
   },
   "experience": {
