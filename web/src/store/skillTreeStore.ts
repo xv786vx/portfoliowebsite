@@ -66,7 +66,7 @@ const initialNodes: SkillNode[] = [
     connections: [
       "center",
       "project_syncer",
-      "project_f1",
+      // "project_f1",
       "project_lstm",
       "project_ss",
       "project_recipelens",
@@ -137,20 +137,20 @@ const initialNodes: SkillNode[] = [
     strokeColor: "#696a6a",
     portfolioData: portfolioData.project_syncer,
   },
-  {
-    id: "project_f1",
-    label: portfolioData.project_f1.label,
-    description: portfolioData.project_f1.description,
-    position: { x: 247, y: -247 }, // 45° clockwise from top
-    level: 2,
-    angle: -0.785, // -45 degrees
-    isActive: false,
-    isHovered: false,
-    connections: ["projects"],
-    color: "#75645d",
-    strokeColor: "#75645d",
-    portfolioData: portfolioData.project_f1,
-  },
+  // {
+  //   id: "project_f1",
+  //   label: portfolioData.project_f1.label,
+  //   description: portfolioData.project_f1.description,
+  //   position: { x: 247, y: -247 }, // 45° clockwise from top
+  //   level: 2,
+  //   angle: -0.785, // -45 degrees
+  //   isActive: false,
+  //   isHovered: false,
+  //   connections: ["projects"],
+  //   color: "#75645d",
+  //   strokeColor: "#75645d",
+  //   portfolioData: portfolioData.project_f1,
+  // },
   {
     id: "project_lstm",
     label: portfolioData.project_lstm.label,

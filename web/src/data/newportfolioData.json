@@ -52,11 +52,17 @@
         "name": "LSTM Stock Predictor",
         "description": "ML-driven stock forecasting and backtesting tool",
         "link": "https://colab.research.google.com/drive/1y50I3hDfcc55mXrFq70Ukbm15e1gLC-V"
+      },
+      {
+        "name": "F1 Graph Visualizer",
+        "description": "Python data visualization for Formula 1 analytics",
+        "link": "https://github.com/xv786vx/csc111-project2"
       }
     ],
     "stats": {
-      "total Projects": 4,
-      "live Projects": 2,
+      "total Projects": 5,
+      "live Projects": 3,
+      "github Repos": 15,
       "hackathon Wins": 1
     }
   },
