@@ -55,9 +55,9 @@
       }
     ],
     "stats": {
-      "total Projects": 4,
-      "live Projects": 2,
-      "hackathon Wins": 1
+      "totalProjects": 4,
+      "liveProjects": 2,
+      "hackathonWins": 1
     }
   },
   "experience": {
