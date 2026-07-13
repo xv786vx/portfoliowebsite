@@ -2,6 +2,8 @@ import { create } from "zustand";
 import portfolioData from "../data/portfolioData.json";
 import type { PortfolioNodeData } from "../types/portfolioTypes";
 
+export type UIMode = "orbital" | "static" | "new";
+
 export interface SkillNode {
   id: string;
   label: string;
@@ -23,9 +25,8 @@ interface SkillTreeState {
   activeNodeId: string | null;
   hoveredNodeId: string | null;
   canvasSize: { width: number; height: number };
-  isDetailModalOpen: boolean;
-  detailModalNodeId: string | null;
-  uiMode: "orbital" | "static"; // Toggle between orbital rotation and static with lines
+  focusedNodeId: string | null; // The node the camera is zoomed into (null = universe view)
+  uiMode: UIMode; // orbital rotation / static with lines / constellation
   setActiveNode: (nodeId: string | null) => void;
   setHoveredNode: (nodeId: string | null) => void;
   setCanvasSize: (size: { width: number; height: number }) => void;
@@ -33,9 +34,9 @@ interface SkillTreeState {
     nodeId: string,
     position: { x: number; y: number }
   ) => void;
-  openDetailModal: (nodeId: string) => void;
-  closeDetailModal: () => void;
-  toggleUIMode: () => void;
+  focusNode: (nodeId: string) => void;
+  clearFocus: () => void;
+  setUIMode: (mode: UIMode) => void;
 }
 
 // Sample node data for the portfolio
@@ -243,8 +244,7 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
   activeNodeId: "center",
   hoveredNodeId: null,
   canvasSize: { width: 800, height: 600 },
-  isDetailModalOpen: false,
-  detailModalNodeId: null,
+  focusedNodeId: null,
   uiMode: "orbital", // Default to orbital mode
 
   setActiveNode: (nodeId) =>
@@ -274,20 +274,17 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
       ),
     })),
 
-  openDetailModal: (nodeId) =>
-    set({
-      isDetailModalOpen: true,
-      detailModalNodeId: nodeId,
-    }),
-
-  closeDetailModal: () =>
-    set({
-      isDetailModalOpen: false,
-      detailModalNodeId: null,
-    }),
-
-  toggleUIMode: () =>
+  focusNode: (nodeId) =>
     set((state) => ({
-      uiMode: state.uiMode === "orbital" ? "static" : "orbital",
+      focusedNodeId: nodeId,
+      activeNodeId: nodeId,
+      nodes: state.nodes.map((node) => ({
+        ...node,
+        isActive: node.id === nodeId,
+      })),
     })),
+
+  clearFocus: () => set({ focusedNodeId: null }),
+
+  setUIMode: (mode) => set({ uiMode: mode }),
 }));

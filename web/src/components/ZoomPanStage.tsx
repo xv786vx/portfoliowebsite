@@ -13,6 +13,7 @@ export interface ZoomPanStageRef {
   centerOn: (x: number, y: number) => void;
   getStage: () => Konva.Stage | null;
   immediateCenter: (x: number, y: number) => void;
+  zoomTo: (x: number, y: number, scale: number, duration?: number) => void;
 }
 
 const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, height, children }, ref) => {
@@ -92,6 +93,43 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
       currentTweenRef.current.play();
     },
     getStage: () => stageRef.current,
+    zoomTo: (nodeX: number, nodeY: number, scale: number, duration = 0.8) => {
+      const stage = stageRef.current;
+      if (!stage) return;
+
+      // Stop any existing animation
+      if (currentTweenRef.current) {
+        currentTweenRef.current.destroy();
+        currentTweenRef.current = null;
+      }
+
+      // Position that centers (nodeX, nodeY) on screen at the TARGET scale
+      const newPos = {
+        x: width / 2 - nodeX * scale,
+        y: height / 2 - nodeY * scale,
+      };
+
+      currentTweenRef.current = new Konva.Tween({
+        node: stage,
+        x: newPos.x,
+        y: newPos.y,
+        scaleX: scale,
+        scaleY: scale,
+        duration,
+        easing: Konva.Easings.EaseInOut,
+        onUpdate: () => {
+          setStagePos({ x: stage.x(), y: stage.y() });
+          setStageScale(stage.scaleX());
+        },
+        onFinish: () => {
+          currentTweenRef.current = null;
+          setStagePos({ x: stage.x(), y: stage.y() });
+          setStageScale(stage.scaleX());
+        },
+      });
+
+      currentTweenRef.current.play();
+    },
   }), [width, height, stageScale]);
   
   // Handle mouse wheel zoom
@@ -114,7 +152,7 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
     };
     
     const direction = e.evt.deltaY > 0 ? -1 : 1;
-    const newScale = Math.max(0.5, Math.min(2, oldScale + direction * 0.1));
+    const newScale = Math.max(0.5, Math.min(3, oldScale + direction * 0.1));
     
     setStageScale(newScale);
     

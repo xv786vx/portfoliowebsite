@@ -14,7 +14,9 @@ export default {
       },
 
       fontFamily: {
-        pixelify: ["Pixelify Sans", "sans-serif"],
+        serif: ['"DM Serif Display"', 'Georgia', 'serif'],
+        mono: ['"Roboto Mono"', 'monospace'],
+        sans: ['"Roboto Mono"', 'monospace'],
       },
     },
   },
