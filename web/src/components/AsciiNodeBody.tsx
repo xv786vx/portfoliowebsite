@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useMemo } from 'react';
-import { Image as KonvaImage, Group, Text } from 'react-konva';
+import { Image as KonvaImage, Group } from 'react-konva';
 import Konva from 'konva';
 import { AsciiEngine } from '../utils/asciiMath';
-import { generatePlanet, generateSun, generateBlackHole, generateAsteroid, generateComet } from '../utils/celestialBodies';
+import { generatePlanet, generateSun, generateBlackHole, generateAsteroid, generateComet, type PlanetProfile, type AsteroidProfile } from '../utils/celestialBodies';
 
 interface AsciiNodeBodyProps {
   x: number;
@@ -10,6 +10,10 @@ interface AsciiNodeBodyProps {
   size: number;
   /** Multi-stop color palette (dark → bright) sampled by luminance */
   palette: string[];
+  /** Per-planet surface profile (only used when type === 'planet'). */
+  planetProfile?: PlanetProfile;
+  /** Per-asteroid variety profile (only used when type === 'asteroid'). */
+  asteroidProfile?: AsteroidProfile;
   /** Base rotation/animation speed multiplier for this body */
   speedMul: number;
   /** Angle (radians, screen space) from this body toward the black hole — the
@@ -23,7 +27,7 @@ interface AsciiNodeBodyProps {
 }
 
 const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
-  x, y, size, palette, speedMul, lightAngle, isHovered, type, onClick, onMouseEnter, onMouseLeave
+  x, y, size, palette, planetProfile, asteroidProfile, speedMul, lightAngle, isHovered, type, onClick, onMouseEnter, onMouseLeave
 }) => {
   const imageRef = useRef<Konva.Image>(null);
   const animationId = useRef<number>(0);
@@ -81,14 +85,14 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
       if (drawAccRef.current >= 1000 / 30) {
         drawAccRef.current = 0;
 
-        if (type === 'planet') {
-          generatePlanet(engine, ctx, time, palette, 1, brightness, lightAngle);
+        if (type === 'planet' && planetProfile) {
+          generatePlanet(engine, ctx, time, planetProfile, 1, brightness, lightAngle);
         } else if (type === 'sun') {
           generateSun(engine, ctx, time, palette, 1, brightness);
         } else if (type === 'blackhole') {
-          generateBlackHole(engine, ctx, time, palette, 1, brightness);
-        } else if (type === 'asteroid') {
-          generateAsteroid(engine, ctx, time, palette, 1, brightness, lightAngle);
+          generateBlackHole(engine, ctx, time, palette, 1, brightness, isHovered ? 1 : 0);
+        } else if (type === 'asteroid' && asteroidProfile) {
+          generateAsteroid(engine, ctx, time, asteroidProfile, 1, brightness, lightAngle);
         } else if (type === 'comet') {
           generateComet(engine, ctx, time, palette, 1, brightness, lightAngle);
         }
@@ -104,24 +108,10 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
 
     animationId.current = requestAnimationFrame(renderLoop);
     return () => cancelAnimationFrame(animationId.current);
-  }, [engine, ctx, canvas, palette, speedMul, lightAngle, isHovered, type]);
+  }, [engine, ctx, canvas, palette, planetProfile, asteroidProfile, speedMul, lightAngle, isHovered, type]);
 
   return (
     <Group x={x} y={y}>
-      {/* ASCII targeting bracket on hover */}
-      {isHovered && (
-        <Text
-          text={`[  ${type === 'blackhole' ? '◈' : type === 'sun' ? '✦' : type === 'asteroid' ? '◆' : type === 'comet' ? '☄' : '●'}  ]`}
-          x={-size / 2 - 18}
-          y={-10}
-          fontSize={20}
-          fontFamily='"Roboto Mono", monospace'
-          fill="#00ff41"
-          align="center"
-          width={size + 36}
-          listening={false}
-        />
-      )}
       <KonvaImage
         ref={imageRef}
         image={canvas}
