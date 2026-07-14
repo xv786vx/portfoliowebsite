@@ -3,6 +3,7 @@ import { Image as KonvaImage, Group } from 'react-konva';
 import Konva from 'konva';
 import { AsciiEngine } from '../utils/asciiMath';
 import { generatePlanet, generateSun, generateBlackHole, generateAsteroid, generateComet, type PlanetProfile, type AsteroidProfile } from '../utils/celestialBodies';
+import { registerAsciiTicker, markLayerDirty } from '../utils/asciiScheduler';
 
 interface AsciiNodeBodyProps {
   x: number;
@@ -30,7 +31,6 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
   x, y, size, palette, planetProfile, asteroidProfile, speedMul, lightAngle, isHovered, type, onClick, onMouseEnter, onMouseLeave
 }) => {
   const imageRef = useRef<Konva.Image>(null);
-  const animationId = useRef<number>(0);
   // Accumulated animation "phase", integrated frame-by-frame at the CURRENT
   // speed rather than computed as (elapsed wall time * current speed). The
   // generators derive rotation as time*rate — if we passed raw elapsed time
@@ -39,13 +39,7 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
   // instantly. Integrating dt*speed each frame keeps the angle continuous;
   // only its rate of change speeds up.
   const phaseRef = useRef<number>(0);
-  const lastFrameRef = useRef<number>(Date.now());
-  // Accumulates real elapsed ms since the last actual canvas redraw, so the
-  // expensive part (784 fillText calls via engine.render) is capped to ~30fps
-  // — chunky ASCII art doesn't need 60fps — while phaseRef above still
-  // integrates every real frame, keeping motion/hover speed-up smooth.
-  const drawAccRef = useRef<number>(0);
-  
+
   // Create an off-screen canvas and engine.
   // 28×28 grid: good balance between chunky readable characters and enough
   // resolution for the irregular asteroid silhouette and black hole ring.
@@ -63,13 +57,11 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
   }, [size]);
 
   useEffect(() => {
-    const renderLoop = () => {
-      const now = Date.now();
-      // Clamp dt so a backgrounded/throttled tab doesn't produce one huge jump
-      // in phase when it resumes.
-      const dt = Math.min(0.1, (now - lastFrameRef.current) / 1000);
-      lastFrameRef.current = now;
-
+    // Driven by the shared ASCII scheduler (one rAF loop for every body), which
+    // integrates phase each frame and gates the expensive canvas redraw to a
+    // single shared 30fps tick — see utils/asciiScheduler.ts. `draw` is true
+    // only on that tick; the batchDraw is coalesced by the scheduler.
+    const tick = (dt: number, draw: boolean) => {
       // Hover feedback: brighten the palette and speed up the motion, instead
       // of destroying the palette by swapping to a flat white. Speed is baked
       // into the phase accumulation (see phaseRef above), so the generators
@@ -77,37 +69,27 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
       const brightness = isHovered ? 1.5 : 1.0;
       const speed = isHovered ? speedMul * 1.6 : speedMul;
       phaseRef.current += dt * speed;
+      if (!draw) return;
       const time = phaseRef.current;
 
-      // Cap the expensive redraw (784 fillText calls) to ~30fps; the phase
-      // above still integrates every real frame so motion stays smooth.
-      drawAccRef.current += dt * 1000;
-      if (drawAccRef.current >= 1000 / 30) {
-        drawAccRef.current = 0;
-
-        if (type === 'planet' && planetProfile) {
-          generatePlanet(engine, ctx, time, planetProfile, 1, brightness, lightAngle);
-        } else if (type === 'sun') {
-          generateSun(engine, ctx, time, palette, 1, brightness);
-        } else if (type === 'blackhole') {
-          generateBlackHole(engine, ctx, time, palette, 1, brightness, isHovered ? 1 : 0);
-        } else if (type === 'asteroid' && asteroidProfile) {
-          generateAsteroid(engine, ctx, time, asteroidProfile, 1, brightness, lightAngle);
-        } else if (type === 'comet') {
-          generateComet(engine, ctx, time, palette, 1, brightness, lightAngle);
-        }
-
-        // Notify Konva that the canvas texture has changed
-        if (imageRef.current) {
-          imageRef.current.getLayer()?.batchDraw();
-        }
+      if (type === 'planet' && planetProfile) {
+        generatePlanet(engine, ctx, time, planetProfile, 1, brightness, lightAngle);
+      } else if (type === 'sun') {
+        generateSun(engine, ctx, time, palette, 1, brightness);
+      } else if (type === 'blackhole') {
+        generateBlackHole(engine, ctx, time, palette, 1, brightness, isHovered ? 1 : 0);
+      } else if (type === 'asteroid' && asteroidProfile) {
+        generateAsteroid(engine, ctx, time, asteroidProfile, 1, brightness, lightAngle);
+      } else if (type === 'comet') {
+        generateComet(engine, ctx, time, palette, 1, brightness, lightAngle);
       }
 
-      animationId.current = requestAnimationFrame(renderLoop);
+      // Canvas texture changed — ask the scheduler to redraw this node's layer
+      // once (coalesced across all bodies into a single batchDraw per tick).
+      markLayerDirty(imageRef.current?.getLayer());
     };
 
-    animationId.current = requestAnimationFrame(renderLoop);
-    return () => cancelAnimationFrame(animationId.current);
+    return registerAsciiTicker(tick);
   }, [engine, ctx, canvas, palette, planetProfile, asteroidProfile, speedMul, lightAngle, isHovered, type]);
 
   return (

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSkillTreeStore } from '../store/skillTreeStore';
-import rocketHoverCursor from '../assets/cursor_hover32.png';
 
 const UIToggle: React.FC = () => {
   const { uiMode, setUIMode } = useSkillTreeStore();
@@ -22,7 +21,7 @@ const UIToggle: React.FC = () => {
           hover:scale-105 active:scale-95
         `}
         style={{
-          cursor: `url(${rocketHoverCursor}) 16 16, pointer`,
+          cursor: 'pointer',
           imageRendering: 'pixelated',
           filter: uiMode === 'orbital' ? 'none' : 'grayscale(1)',
         }}
@@ -45,7 +44,7 @@ const UIToggle: React.FC = () => {
           hover:scale-105 active:scale-95
         `}
         style={{
-          cursor: `url(${rocketHoverCursor}) 16 16, pointer`,
+          cursor: 'pointer',
           imageRendering: 'pixelated',
           filter: uiMode === 'static' ? 'none' : 'grayscale(1)',
         }}
@@ -68,7 +67,7 @@ const UIToggle: React.FC = () => {
           hover:scale-105 active:scale-95
         `}
         style={{
-          cursor: `url(${rocketHoverCursor}) 16 16, pointer`,
+          cursor: 'pointer',
           imageRendering: 'pixelated',
           filter: uiMode === 'new' ? 'none' : 'grayscale(1)',
         }}

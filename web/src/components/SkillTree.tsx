@@ -16,8 +16,6 @@ import { getStaticPosition } from '../utils/staticPosition';
 import { getConstellationPosition } from '../utils/constellationPosition';
 
 // Import cursor images
-import rocketCursor from '../assets/cursor32.png';
-import rocketHoverCursor from '../assets/cursor_hover32.png';
 
 // Camera scale when zoomed into a focused node.
 const FOCUS_SCALE = 2.4;
@@ -108,9 +106,9 @@ const SkillTree: React.FC = () => {
 
   const getCursorStyle = () => {
     if (hoveredNodeId && hoveredNodeId === activeNodeId) {
-      return `url(${rocketHoverCursor}) 16 16, pointer`;
+      return 'pointer';
     }
-    return `url(${rocketCursor}) 16 16, auto`;
+    return 'auto';
   };
 
   return (
