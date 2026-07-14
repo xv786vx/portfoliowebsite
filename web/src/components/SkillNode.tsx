@@ -16,7 +16,7 @@ import {
 
 // Pixel art constants - actual sizes for the bounding regions
 const NODE_SIZES = {
-  LEVEL_0: 240,  // Center node (black hole)
+  LEVEL_0: 220,  // Center node (black hole)
   LEVEL_1: 108,  // Category nodes (planets)
   DWARF: 58,     // Dwarf planets (formerly comets) — much smaller
   ASTEROID: 90,  // Asteroids — slightly smaller than before
