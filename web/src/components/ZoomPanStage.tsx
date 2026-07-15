@@ -7,16 +7,25 @@ interface ZoomPanStageProps {
   height: number;
   children: React.ReactNode;
   onScaleChange?: (scale: number) => void;
+  /** When false, the stage is fully locked: no drag/pan and no wheel zoom. */
+  interactive?: boolean;
 }
 
 export interface ZoomPanStageRef {
   centerOn: (x: number, y: number) => void;
   getStage: () => Konva.Stage | null;
   immediateCenter: (x: number, y: number) => void;
-  zoomTo: (x: number, y: number, scale: number, duration?: number) => void;
+  zoomTo: (
+    x: number,
+    y: number,
+    scale: number,
+    duration?: number,
+    screenX?: number,
+    screenY?: number
+  ) => void;
 }
 
-const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, height, children }, ref) => {
+const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, height, children, interactive = true }, ref) => {
   const stageRef = useRef<Konva.Stage>(null);
   const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
   const [stageScale, setStageScale] = useState(1);
@@ -93,7 +102,14 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
       currentTweenRef.current.play();
     },
     getStage: () => stageRef.current,
-    zoomTo: (nodeX: number, nodeY: number, scale: number, duration = 0.8) => {
+    zoomTo: (
+      nodeX: number,
+      nodeY: number,
+      scale: number,
+      duration = 0.8,
+      screenX = width / 2,
+      screenY = height / 2
+    ) => {
       const stage = stageRef.current;
       if (!stage) return;
 
@@ -103,10 +119,11 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
         currentTweenRef.current = null;
       }
 
-      // Position that centers (nodeX, nodeY) on screen at the TARGET scale
+      // Position that lands (nodeX, nodeY) at the screen point (screenX, screenY)
+      // at the TARGET scale (defaults to screen center).
       const newPos = {
-        x: width / 2 - nodeX * scale,
-        y: height / 2 - nodeY * scale,
+        x: screenX - nodeX * scale,
+        y: screenY - nodeY * scale,
       };
 
       currentTweenRef.current = new Konva.Tween({
@@ -134,8 +151,9 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
   
   // Handle mouse wheel zoom
   const handleWheel = useCallback((e: Konva.KonvaEventObject<WheelEvent>) => {
+    if (!interactive) return; // Locked: no wheel zoom
     if (currentTweenRef.current) return; // Prevent zoom during animation
-    
+
     e.evt.preventDefault();
     
     const stage = stageRef.current;
@@ -162,7 +180,7 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
     };
     
     setStagePos(newPos);
-  }, []);
+  }, [interactive]);
 
   const handleDragStart = useCallback(() => {
     // Allow dragging to interrupt animation
@@ -188,9 +206,11 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
       x={stagePos.x}
       y={stagePos.y}
       onWheel={handleWheel}
-      draggable
+      draggable={interactive}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      // When locked, let native touch scrolling pass through the canvas.
+      preventDefault={interactive}
       // Pixel art specific settings
       imageSmoothingEnabled={false}
       pixelRatio={1}

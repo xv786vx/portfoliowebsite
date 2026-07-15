@@ -10,7 +10,6 @@ const LAYOUT: Record<string, { angle: number; radius: number }> = {
   projects: { angle: 205, radius: 235 }, // upper-left
   contact: { angle: 150, radius: 250 }, // lower-left
   experience: { angle: 35, radius: 245 }, // lower-right
-  skills: { angle: 325, radius: 215 }, // upper-right
 
   // Level 2 — projects' children, scattered loosely around projects' angle.
   project_syncer: { angle: 165, radius: 400 },
@@ -23,6 +22,22 @@ const LAYOUT: Record<string, { angle: number; radius: number }> = {
   experience_owh: { angle: 70, radius: 440 },
   skill_education: { angle: 45, radius: 390 },
 };
+
+/**
+ * Largest horizontal/vertical distance (in unscaled px, at scale 1) any node
+ * center sits from the screen center. Used to pick a scale that fits the whole
+ * constellation on screen regardless of viewport size.
+ */
+export function getConstellationExtent() {
+  let maxX = 0;
+  let maxY = 0;
+  for (const { angle, radius } of Object.values(LAYOUT)) {
+    const rad = (angle * Math.PI) / 180;
+    maxX = Math.max(maxX, Math.abs(Math.cos(rad) * radius));
+    maxY = Math.max(maxY, Math.abs(Math.sin(rad) * radius));
+  }
+  return { maxX, maxY };
+}
 
 /**
  * Constellation-mode layout: the black hole always anchors screen center;

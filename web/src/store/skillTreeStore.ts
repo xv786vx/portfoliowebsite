@@ -2,7 +2,7 @@ import { create } from "zustand";
 import portfolioData from "../data/portfolioData.json";
 import type { PortfolioNodeData } from "../types/portfolioTypes";
 
-export type UIMode = "orbital" | "static" | "new";
+export type UIMode = "orbital" | "static" | "new" | "mobile";
 
 export interface SkillNode {
   id: string;
@@ -49,7 +49,7 @@ const initialNodes: SkillNode[] = [
     level: 0,
     isActive: true,
     isHovered: false,
-    connections: ["projects", "experience", "skills", "contact"],
+    connections: ["projects", "experience", "contact"],
     color: "#ff3e5b",
     strokeColor: "#ff3e5b",
     portfolioData: portfolioData.center,
@@ -94,20 +94,6 @@ const initialNodes: SkillNode[] = [
     color: "#639bff",
     strokeColor: "#639bff",
     portfolioData: portfolioData.experience,
-  },
-  {
-    id: "skills",
-    label: portfolioData.skills.label,
-    description: portfolioData.skills.description,
-    position: { x: 0, y: 200 },
-    level: 1,
-    angle: Math.PI / 2,
-    isActive: false,
-    isHovered: false,
-    connections: ["center"], // Updated connections - no child nodes for skills
-    color: "#bd140b",
-    strokeColor: "#bd140b",
-    portfolioData: portfolioData.skills,
   },
   {
     id: "contact",
@@ -245,7 +231,7 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
   hoveredNodeId: null,
   canvasSize: { width: 800, height: 600 },
   focusedNodeId: null,
-  uiMode: "orbital", // Default to orbital mode
+  uiMode: "new", // Default to the (locked) constellation mode
 
   setActiveNode: (nodeId) =>
     set((state) => ({

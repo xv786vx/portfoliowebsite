@@ -22,8 +22,6 @@ export const getStaticPosition = (
         return { x: centerX, y: centerY - baseRadius }; // Top
       case "experience":
         return { x: centerX + baseRadius, y: centerY }; // Right
-      case "skills":
-        return { x: centerX, y: centerY + baseRadius }; // Bottom
       case "contact":
         return { x: centerX - baseRadius, y: centerY }; // Left
       default:

@@ -5,6 +5,7 @@ import type Konva from 'konva';
 import { getOrbitalPosition } from '../utils/orbitalPosition';
 import { getStaticPosition } from '../utils/staticPosition';
 import { getConstellationPosition } from '../utils/constellationPosition';
+import { getMobilePosition } from '../utils/mobilePosition';
 import AsciiNodeBody from './AsciiNodeBody';
 import {
   BLACKHOLE_PALETTE,
@@ -27,7 +28,6 @@ const NODE_SIZES = {
 const PLANET_PROFILE_NAMES = Object.keys(PLANET_PROFILES);
 const CATEGORY_PLANETS: Record<string, keyof typeof PLANET_PROFILES> = {
   projects: 'jupiter',
-  skills: 'neptune',
   experience: 'mars',
   contact: 'uranus',
 };
@@ -84,6 +84,8 @@ const SkillNode: React.FC<SkillNodeProps> = ({
     ? getOrbitalPosition(node, centerX, centerY, scale, animationTime)
     : uiMode === 'new'
     ? getConstellationPosition(node, centerX, centerY, scale)
+    : uiMode === 'mobile'
+    ? getMobilePosition(node, centerX, centerY, scale)
     : getStaticPosition(node, centerX, centerY, scale);
   
   // Base radius depends on level
