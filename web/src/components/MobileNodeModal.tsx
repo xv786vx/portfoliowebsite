@@ -23,7 +23,7 @@ const MobileNodeModal: React.FC = () => {
         >
           {/* Scrollable content */}
           <div className="flex-1 overflow-y-auto px-6 pt-8 pb-28">
-            <NodeCardContent node={node} data={data} />
+            <NodeCardContent data={data} />
           </div>
 
           {/* Close button, centered at the bottom — plain ASCII, no chrome */}
@@ -32,7 +32,7 @@ const MobileNodeModal: React.FC = () => {
               type="button"
               onClick={clearFocus}
               aria-label="Close"
-              className="font-mono text-2xl tracking-widest text-neutral-400 hover:text-white transition-colors"
+              className="font-mono text-3xl tracking-widest text-neutral-400 hover:text-white transition-colors"
             >
               [ X ]
             </button>

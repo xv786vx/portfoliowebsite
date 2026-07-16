@@ -1,26 +1,32 @@
 import type { SkillNode } from "../store/skillTreeStore";
 
-// Hand-placed polar coordinates (angle in degrees, radius factor) per node —
+// Hand-placed offsets (unscaled px from the centered black hole) per node —
 // deliberately IRREGULAR (not evenly spaced, unlike the cardinal/arc static
-// layout) but chosen so the four quadrants — and specifically the left/right
-// halves of the screen around the fixed, centered black hole — stay roughly
-// balanced. angle 0deg = +x (right), 90deg = +y (down), increasing clockwise.
-const LAYOUT: Record<string, { angle: number; radius: number }> = {
-  // Level 1 — categories. One per quadrant, irregular spacing (not 90 apart).
-  projects: { angle: 205, radius: 235 }, // upper-left
-  contact: { angle: 150, radius: 250 }, // lower-left
-  experience: { angle: 35, radius: 245 }, // lower-right
+// layout), but composed as a WIDE, SHALLOW band: the chart runs roughly 3x as
+// far horizontally as it does vertically, so it suits landscape viewports
+// instead of fighting them. +x is right, +y is DOWN (screen coords).
+//
+// Two rules hold the composition together:
+//   - Each branch fans OUTWARD from center along its own side — projects and
+//     its children to the left, experience and its children to the right — so
+//     |x| grows with depth and the connection lines read as arms, not a tangle.
+//     contact is childless, so it rides the right arm to keep the halves even.
+//   - y values stay small and varied. They carry the constellation's scatter;
+//     x carries the reach.
+const LAYOUT: Record<string, { x: number; y: number }> = {
+  // Left arm — projects (level 1) and its four children.
+  projects: { x: -255, y: -25 },
+  project_recipelens: { x: -300, y: 150 },
+  project_ss: { x: -455, y: -140 },
+  project_syncer: { x: -505, y: 45 },
+  project_lstm: { x: -630, y: -55 },
 
-  // Level 2 — projects' children, scattered loosely around projects' angle.
-  project_syncer: { angle: 165, radius: 400 },
-  project_lstm: { angle: 230, radius: 430 },
-  project_ss: { angle: 195, radius: 460 },
-  project_recipelens: { angle: 260, radius: 395 },
-
-  // Level 2 — experience's children, scattered loosely around experience's angle.
-  experience_vertige: { angle: 10, radius: 410 },
-  experience_owh: { angle: 70, radius: 440 },
-  skill_education: { angle: 45, radius: 390 },
+  // Right arm — experience (level 1), its three children, and contact.
+  contact: { x: 215, y: -175 },
+  experience: { x: 265, y: 55 },
+  skill_education: { x: 430, y: -95 },
+  experience_vertige: { x: 490, y: 120 },
+  experience_owh: { x: 640, y: -20 },
 };
 
 /**
@@ -31,10 +37,9 @@ const LAYOUT: Record<string, { angle: number; radius: number }> = {
 export function getConstellationExtent() {
   let maxX = 0;
   let maxY = 0;
-  for (const { angle, radius } of Object.values(LAYOUT)) {
-    const rad = (angle * Math.PI) / 180;
-    maxX = Math.max(maxX, Math.abs(Math.cos(rad) * radius));
-    maxY = Math.max(maxY, Math.abs(Math.sin(rad) * radius));
+  for (const { x, y } of Object.values(LAYOUT)) {
+    maxX = Math.max(maxX, Math.abs(x));
+    maxY = Math.max(maxY, Math.abs(y));
   }
   return { maxX, maxY };
 }
@@ -42,7 +47,7 @@ export function getConstellationExtent() {
 /**
  * Constellation-mode layout: the black hole always anchors screen center;
  * every other node sits at a hand-placed (irregular, but left/right-balanced)
- * polar position around it — a fixed "star chart" rather than a clean grid.
+ * offset around it — a fixed "star chart" rather than a clean grid.
  */
 export const getConstellationPosition = (
   node: SkillNode,
@@ -56,14 +61,13 @@ export const getConstellationPosition = (
 
   const entry = LAYOUT[node.id];
   if (!entry) {
-    // Defensive fallback — shouldn't hit given the fixed node set above.
-    return { x: centerX + node.position.x * scale, y: centerY + node.position.y * scale };
+    // A node in the store with no entry here has nowhere to go — park it on the
+    // center so the omission is obvious rather than silently off-screen.
+    return { x: centerX, y: centerY };
   }
 
-  const rad = (entry.angle * Math.PI) / 180;
-  const r = entry.radius * scale;
   return {
-    x: centerX + Math.cos(rad) * r,
-    y: centerY + Math.sin(rad) * r,
+    x: centerX + entry.x * scale,
+    y: centerY + entry.y * scale,
   };
 };

@@ -2,8 +2,6 @@ import React, { useRef } from 'react';
 import { Text, Group } from 'react-konva';
 import { useSkillTreeStore, type SkillNode as SkillNodeType } from '../store/skillTreeStore';
 import type Konva from 'konva';
-import { getOrbitalPosition } from '../utils/orbitalPosition';
-import { getStaticPosition } from '../utils/staticPosition';
 import { getConstellationPosition } from '../utils/constellationPosition';
 import { getMobilePosition } from '../utils/mobilePosition';
 import AsciiNodeBody from './AsciiNodeBody';
@@ -66,27 +64,21 @@ interface SkillNodeProps {
   centerX: number;
   centerY: number;
   scale?: number;
-  animationTime?: number;
 }
 
-const SkillNode: React.FC<SkillNodeProps> = ({ 
-  node, 
-  centerX, 
-  centerY, 
-  scale = 1,
-  animationTime = 0
+const SkillNode: React.FC<SkillNodeProps> = ({
+  node,
+  centerX,
+  centerY,
+  scale = 1
 }) => {
   const { setHoveredNode, focusNode, uiMode, focusedNodeId, nodes } = useSkillTreeStore();
   const nodeShapeRef = useRef<Konva.Group>(null);
-  
+
   // Calculate position based on UI mode
-  const { x, y } = uiMode === 'orbital'
-    ? getOrbitalPosition(node, centerX, centerY, scale, animationTime)
-    : uiMode === 'new'
-    ? getConstellationPosition(node, centerX, centerY, scale)
-    : uiMode === 'mobile'
+  const { x, y } = uiMode === 'mobile'
     ? getMobilePosition(node, centerX, centerY, scale)
-    : getStaticPosition(node, centerX, centerY, scale);
+    : getConstellationPosition(node, centerX, centerY, scale);
   
   // Base radius depends on level
   const baseRadius = node.level === 0 ? 80 : node.level === 1 ? 55 : node.level === 2 ? 40 : 30;
@@ -107,18 +99,18 @@ const SkillNode: React.FC<SkillNodeProps> = ({
     let baseFontSize;
     switch (node.level) {
       case 0:
-        baseFontSize = radius * 0.238;
-        break;
-      case 1:
         baseFontSize = radius * 0.28;
         break;
+      case 1:
+        baseFontSize = radius * 0.33;
+        break;
       case 2:
-        baseFontSize = radius * 0.30; // outermost nodes (comets/asteroids) — slightly smaller
+        baseFontSize = radius * 0.355; // outermost nodes (comets/asteroids) — slightly smaller
         break;
       default:
-        baseFontSize = radius * 0.24;
+        baseFontSize = radius * 0.28;
     }
-    return Math.max(baseFontSize, 8);
+    return Math.max(baseFontSize, 10);
   };
   
   const getTextConfig = () => {
@@ -126,13 +118,13 @@ const SkillNode: React.FC<SkillNodeProps> = ({
     const labelY = y + bodySize / 2 + 6;
     switch (node.level) {
       case 0:
-        return { width: radius * 1.8, height: radius * 1.4, offsetX: radius * 0.9, offsetY: 0, y: labelY, lineHeight: 1.1 };
+        return { width: radius * 1.8, height: radius * 1.7, offsetX: radius * 0.9, offsetY: 0, y: labelY, lineHeight: 1.1 };
       case 1:
-        return { width: radius * 2.4, height: radius * 1.6, offsetX: radius * 1.2, offsetY: 0, y: labelY, lineHeight: 1.2 };
+        return { width: radius * 2.4, height: radius * 1.9, offsetX: radius * 1.2, offsetY: 0, y: labelY, lineHeight: 1.2 };
       case 2:
-        return { width: radius * 2.8, height: radius * 1.8, offsetX: radius * 1.4, offsetY: 0, y: labelY, lineHeight: 1.2 };
+        return { width: radius * 2.8, height: radius * 2.1, offsetX: radius * 1.4, offsetY: 0, y: labelY, lineHeight: 1.2 };
       default:
-        return { width: radius * 2.8, height: radius * 1.8, offsetX: radius * 1.4, offsetY: 0, y: labelY, lineHeight: 1.2 };
+        return { width: radius * 2.8, height: radius * 2.1, offsetX: radius * 1.4, offsetY: 0, y: labelY, lineHeight: 1.2 };
     }
   };
 
@@ -251,7 +243,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
               text={node.label}
               fontSize={fontSize}
               fontFamily="'Roboto Mono', monospace"
-              fontStyle="300"
+              fontStyle="400"
               fill="#000000" // Black outline
               align="center"
               verticalAlign="top"
@@ -275,7 +267,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
         text={node.label}
         fontSize={fontSize}
         fontFamily="'Roboto Mono', monospace"
-        fontStyle="300"
+        fontStyle="400"
         fill="#ffffff"
         align="center"
         verticalAlign="top"

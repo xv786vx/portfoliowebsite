@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSkillTreeStore, type SkillNode } from '../store/skillTreeStore';
+import { useSkillTreeStore } from '../store/skillTreeStore';
 import type { PortfolioNodeData } from '../types/portfolioTypes';
 import resumePdf from '../assets/firasaj_resume_august2025.pdf';
 
@@ -28,7 +28,7 @@ export function buildLinks(data: PortfolioNodeData): CardLink[] {
 export const LinkRow: React.FC<{ link: CardLink }> = ({ link }) => {
   const isResume = link.url === '#resume';
   const commonClass =
-    'group flex items-center justify-between border-b border-white/10 py-2 text-sm ' +
+    'group flex items-center justify-between border-b border-white/10 py-2 text-base ' +
     'text-neutral-300 hover:text-white transition-colors';
 
   const inner = (
@@ -58,26 +58,24 @@ export const LinkRow: React.FC<{ link: CardLink }> = ({ link }) => {
 
 /** Shared body content for a focused node — reused by the desktop panel and the
  *  mobile full-screen modal. */
-export const NodeCardContent: React.FC<{ node: SkillNode; data: PortfolioNodeData }> = ({
-  node,
-  data,
-}) => {
+export const NodeCardContent: React.FC<{ data: PortfolioNodeData }> = ({ data }) => {
   const links = buildLinks(data);
-  // Secondary meta shown on the subtitle row
-  const meta = data.role || data.duration || `LEVEL ${node.level} NODE`;
+  // Secondary meta shown on the subtitle row — omitted entirely when the node
+  // carries no real role/duration of its own.
+  const meta = data.role || data.duration;
 
   return (
     <>
       {/* Title */}
-      <h2 className="font-serif uppercase text-white leading-none text-4xl mb-2 tracking-wide">
+      <h2 className="font-serif uppercase text-white leading-none text-5xl mb-2 tracking-wide">
         {data.label}
       </h2>
 
       {/* Subtitle: description and meta stacked, each wrapping within the card */}
       <div className="border-b border-white/15 pb-2 mb-3">
-        <p className="text-sm text-neutral-300 break-words">{data.description}</p>
+        <p className="text-base text-neutral-300 break-words">{data.description}</p>
         {meta && (
-          <p className="mt-1 text-xs uppercase tracking-wider text-neutral-500 break-words">
+          <p className="mt-1 text-sm uppercase tracking-wider text-neutral-500 break-words">
             {meta}
           </p>
         )}
@@ -85,14 +83,14 @@ export const NodeCardContent: React.FC<{ node: SkillNode; data: PortfolioNodeDat
 
       {/* Body blurb */}
       {data.extended_desc && (
-        <p className="text-sm leading-relaxed text-neutral-400 mb-4">{data.extended_desc}</p>
+        <p className="text-base leading-relaxed text-neutral-400 mb-4">{data.extended_desc}</p>
       )}
 
       {/* Technologies (compact) */}
       {data.technologies && data.technologies.length > 0 && (
         <div className="flex flex-wrap gap-x-3 gap-y-1 mb-4">
           {data.technologies.map((t) => (
-            <span key={t} className="text-xs uppercase tracking-wider text-neutral-500">
+            <span key={t} className="text-sm uppercase tracking-wider text-neutral-500">
               {t}
             </span>
           ))}
@@ -142,12 +140,12 @@ const NodeInfoCard: React.FC = () => {
             <button
               type="button"
               onClick={clearFocus}
-              className="mb-3 text-xs uppercase tracking-widest text-neutral-500 hover:text-white transition-colors"
+              className="mb-3 text-sm uppercase tracking-widest text-neutral-500 hover:text-white transition-colors"
             >
               [ ESC ] ← BACK
             </button>
 
-            <NodeCardContent node={node} data={data} />
+            <NodeCardContent data={data} />
           </div>
         </motion.div>
       )}

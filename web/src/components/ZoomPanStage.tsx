@@ -9,7 +9,13 @@ interface ZoomPanStageProps {
   onScaleChange?: (scale: number) => void;
   /** When false, the stage is fully locked: no drag/pan and no wheel zoom. */
   interactive?: boolean;
+  /** Fired when the user clicks empty canvas — not a node body or its label.
+   *  A pan that ends in empty space does not count. */
+  onBackgroundClick?: () => void;
 }
+
+/** Pointer travel (px) still treated as a click rather than a pan. */
+const CLICK_SLOP = 5;
 
 export interface ZoomPanStageRef {
   centerOn: (x: number, y: number) => void;
@@ -25,11 +31,13 @@ export interface ZoomPanStageRef {
   ) => void;
 }
 
-const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, height, children, interactive = true }, ref) => {
+const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, height, children, interactive = true, onBackgroundClick }, ref) => {
   const stageRef = useRef<Konva.Stage>(null);
   const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
   const [stageScale, setStageScale] = useState(1);
   const currentTweenRef = useRef<Konva.Tween | null>(null);
+  // Where the pointer went down, and whether it landed on empty canvas.
+  const pointerDownRef = useRef<{ x: number; y: number; onEmpty: boolean } | null>(null);
   
   // Expose centerOn method to parent
   useImperativeHandle(ref, () => ({
@@ -195,7 +203,37 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
       setStagePos({ x: e.target.x(), y: e.target.y() });
     }
   }, []);
-  
+
+  // A click on empty canvas dismisses the focused node. Konva reports the Stage
+  // itself as the target only when nothing was hit, so node bodies and their
+  // labels — which carry their own handlers — never reach here. Tracked across
+  // down/up rather than via onClick so that panning the stage and releasing over
+  // empty space doesn't read as a click.
+  const handleMouseDown = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    const stage = stageRef.current;
+    const pointer = stage?.getPointerPosition();
+    pointerDownRef.current = pointer
+      ? { x: pointer.x, y: pointer.y, onEmpty: e.target === stage }
+      : null;
+  }, []);
+
+  const handleMouseUp = useCallback((e: Konva.KonvaEventObject<MouseEvent>) => {
+    const down = pointerDownRef.current;
+    pointerDownRef.current = null;
+
+    if (!down || !down.onEmpty || !onBackgroundClick) return;
+
+    const stage = stageRef.current;
+    if (e.target !== stage) return; // released over a node
+
+    const pointer = stage?.getPointerPosition();
+    if (!pointer) return;
+
+    if (Math.hypot(pointer.x - down.x, pointer.y - down.y) <= CLICK_SLOP) {
+      onBackgroundClick();
+    }
+  }, [onBackgroundClick]);
+
   return (
     <Stage
       ref={stageRef}
@@ -209,6 +247,8 @@ const ZoomPanStage = forwardRef<ZoomPanStageRef, ZoomPanStageProps>(({ width, he
       draggable={interactive}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
       // When locked, let native touch scrolling pass through the canvas.
       preventDefault={interactive}
       // Pixel art specific settings

@@ -2,21 +2,17 @@ import { create } from "zustand";
 import portfolioData from "../data/portfolioData.json";
 import type { PortfolioNodeData } from "../types/portfolioTypes";
 
-export type UIMode = "orbital" | "static" | "new" | "mobile";
+// The layout is locked to one mode per form factor: the constellation star
+// chart on desktop, a vertical stack on mobile. SkillTree picks between them.
+export type UIMode = "new" | "mobile";
 
 export interface SkillNode {
   id: string;
   label: string;
-  description?: string;
-  position: { x: number; y: number };
-  level: number; // 0 = center, 1 = first ring, etc.
-  angle?: number; // angle in radians for positioning
+  level: number; // 0 = center, 1 = first ring, etc. Drives body size + shape.
   isActive: boolean;
   isHovered: boolean;
   connections: string[]; // IDs of connected nodes
-  icon?: string;
-  color?: string;
-  strokeColor?: string; // Optional stroke color for the node
   portfolioData?: PortfolioNodeData; // Reference to detailed portfolio data
 }
 
@@ -24,44 +20,32 @@ interface SkillTreeState {
   nodes: SkillNode[];
   activeNodeId: string | null;
   hoveredNodeId: string | null;
-  canvasSize: { width: number; height: number };
   focusedNodeId: string | null; // The node the camera is zoomed into (null = universe view)
-  uiMode: UIMode; // orbital rotation / static with lines / constellation
-  setActiveNode: (nodeId: string | null) => void;
+  uiMode: UIMode;
   setHoveredNode: (nodeId: string | null) => void;
-  setCanvasSize: (size: { width: number; height: number }) => void;
-  updateNodePosition: (
-    nodeId: string,
-    position: { x: number; y: number }
-  ) => void;
   focusNode: (nodeId: string) => void;
   clearFocus: () => void;
   setUIMode: (mode: UIMode) => void;
 }
 
-// Sample node data for the portfolio
+// The node set. Screen positions are NOT stored here — they live in
+// `utils/constellationPosition.ts` (desktop) and `utils/mobilePosition.ts`
+// (mobile), keyed by id. Adding a node here means adding an entry to both.
 const initialNodes: SkillNode[] = [
   {
     id: "center",
     label: portfolioData.center.label,
-    description: portfolioData.center.description,
-    position: { x: 0, y: 0 },
     level: 0,
     isActive: true,
     isHovered: false,
     connections: ["projects", "experience", "contact"],
-    color: "#ff3e5b",
-    strokeColor: "#ff3e5b",
     portfolioData: portfolioData.center,
   },
   // First level nodes
   {
     id: "projects",
     label: portfolioData.projects.label,
-    description: portfolioData.projects.description,
-    position: { x: 0, y: -200 },
     level: 1,
-    angle: -Math.PI / 2,
     isActive: false,
     isHovered: false,
     connections: [
@@ -72,17 +56,12 @@ const initialNodes: SkillNode[] = [
       "project_ss",
       "project_recipelens",
     ],
-    color: "#36732e",
-    strokeColor: "#36732e",
     portfolioData: portfolioData.projects,
   },
   {
     id: "experience",
     label: portfolioData.experience.label,
-    description: portfolioData.experience.description,
-    position: { x: 200, y: 0 },
     level: 1,
-    angle: 0,
     isActive: false,
     isHovered: false,
     connections: [
@@ -90,137 +69,93 @@ const initialNodes: SkillNode[] = [
       "experience_vertige",
       "experience_owh",
       "skill_education",
-    ], // Updated connections
-    color: "#639bff",
-    strokeColor: "#639bff",
+    ],
     portfolioData: portfolioData.experience,
   },
   {
     id: "contact",
     label: portfolioData.contact.label,
-    description: portfolioData.contact.description,
-    position: { x: -200, y: 0 },
     level: 1,
-    angle: Math.PI,
     isActive: false,
     isHovered: false,
     connections: ["center"],
-    color: "#8f563b",
-    strokeColor: "#8f563b",
     portfolioData: portfolioData.contact,
   },
-  // Project nodes - evenly distributed on outer orbital (radius 350px) - 8 nodes total, 45° apart
+  // Project nodes
   {
     id: "project_syncer",
     label: portfolioData.project_syncer.label,
-    description: portfolioData.project_syncer.description,
-    position: { x: 0, y: -350 }, // 0° (top)
     level: 2,
-    angle: -Math.PI / 2, // -90 degrees
     isActive: false,
     isHovered: false,
     connections: ["projects"],
-    color: "#696a6a",
-    strokeColor: "#696a6a",
     portfolioData: portfolioData.project_syncer,
   },
+  // Disabled. To re-enable, also add a `project_f1` entry to the LAYOUT map in
+  // utils/constellationPosition.ts and to MOBILE_ORDER in utils/mobilePosition.ts,
+  // and uncomment it from the `projects` connections above.
   // {
   //   id: "project_f1",
   //   label: portfolioData.project_f1.label,
-  //   description: portfolioData.project_f1.description,
-  //   position: { x: 247, y: -247 }, // 45° clockwise from top
   //   level: 2,
-  //   angle: -0.785, // -45 degrees
   //   isActive: false,
   //   isHovered: false,
   //   connections: ["projects"],
-  //   color: "#75645d",
-  //   strokeColor: "#75645d",
   //   portfolioData: portfolioData.project_f1,
   // },
   {
     id: "project_lstm",
     label: portfolioData.project_lstm.label,
-    description: portfolioData.project_lstm.description,
-    position: { x: 350, y: 0 }, // 90° clockwise from top (right side)
     level: 2,
-    angle: 0, // 0 degrees
     isActive: false,
     isHovered: false,
     connections: ["projects"],
-    color: "#75645d",
-    strokeColor: "#75645d",
     portfolioData: portfolioData.project_lstm,
   },
   {
     id: "project_ss",
     label: portfolioData.project_ss.label,
-    description: portfolioData.project_ss.description,
-    position: { x: 247, y: 247 }, // 135° clockwise from top
     level: 2,
-    angle: 0.785, // 45 degrees
     isActive: false,
     isHovered: false,
     connections: ["projects"],
-    color: "#75645d",
-    strokeColor: "#75645d",
     portfolioData: portfolioData.project_ss,
   },
   {
     id: "project_recipelens",
     label: portfolioData.project_recipelens.label,
-    description: portfolioData.project_recipelens.description,
-    position: { x: 0, y: 350 }, // 180° clockwise from top (bottom)
     level: 2,
-    angle: 1.571, // 90 degrees
     isActive: false,
     isHovered: false,
     connections: ["projects"],
-    color: "#696a6a",
-    strokeColor: "#696a6a",
     portfolioData: portfolioData.project_recipelens,
   },
-  // Experience nodes - positioned on outer orbital (radius 350px from center) with better spacing
+  // Experience nodes
   {
     id: "experience_vertige",
     label: portfolioData.experience_vertige.label,
-    description: portfolioData.experience_vertige.description,
-    position: { x: -247, y: 247 }, // 225° clockwise from top
     level: 2,
-    angle: 2.356, // 135 degrees
     isActive: false,
     isHovered: false,
     connections: ["experience"],
-    color: "#75645d",
-    strokeColor: "#75645d",
     portfolioData: portfolioData.experience_vertige,
   },
   {
     id: "experience_owh",
     label: portfolioData.experience_owh.label,
-    description: portfolioData.experience_owh.description,
-    position: { x: -350, y: 0 }, // 270° clockwise from top (left side)
     level: 2,
-    angle: 3.142, // 180 degrees
     isActive: false,
     isHovered: false,
     connections: ["experience"],
-    color: "#696a6a",
-    strokeColor: "#696a6a",
     portfolioData: portfolioData.experience_owh,
   },
   {
     id: "skill_education",
     label: portfolioData.skill_education.label,
-    description: portfolioData.skill_education.description,
-    position: { x: -247, y: -247 }, // 315° clockwise from top
     level: 2,
-    angle: -2.356, // -135 degrees
     isActive: false,
     isHovered: false,
     connections: ["experience"],
-    color: "#696a6a",
-    strokeColor: "#696a6a",
     portfolioData: portfolioData.skill_education,
   },
 ];
@@ -229,18 +164,8 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
   nodes: initialNodes,
   activeNodeId: "center",
   hoveredNodeId: null,
-  canvasSize: { width: 800, height: 600 },
   focusedNodeId: null,
-  uiMode: "new", // Default to the (locked) constellation mode
-
-  setActiveNode: (nodeId) =>
-    set((state) => ({
-      activeNodeId: nodeId,
-      nodes: state.nodes.map((node) => ({
-        ...node,
-        isActive: node.id === nodeId,
-      })),
-    })),
+  uiMode: "new", // Default to the constellation mode; SkillTree switches on mobile.
 
   setHoveredNode: (nodeId) =>
     set((state) => ({
@@ -249,15 +174,6 @@ export const useSkillTreeStore = create<SkillTreeState>((set) => ({
         ...node,
         isHovered: node.id === nodeId,
       })),
-    })),
-
-  setCanvasSize: (size) => set({ canvasSize: size }),
-
-  updateNodePosition: (nodeId, position) =>
-    set((state) => ({
-      nodes: state.nodes.map((node) =>
-        node.id === nodeId ? { ...node, position } : node
-      ),
     })),
 
   focusNode: (nodeId) =>

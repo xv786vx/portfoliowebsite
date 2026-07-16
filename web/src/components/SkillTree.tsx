@@ -32,16 +32,15 @@ const SkillTree: React.FC = () => {
   const stageRef = useRef<ZoomPanStageRef>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [scale, setScale] = useState(1);
-  const [animationTime, setAnimationTime] = useState(0);
 
   const {
     nodes,
-    setCanvasSize,
     setUIMode,
     activeNodeId,
     hoveredNodeId,
     focusedNodeId,
     uiMode,
+    clearFocus,
   } = useSkillTreeStore();
 
   const isMobile = useIsMobile();
@@ -52,22 +51,19 @@ const SkillTree: React.FC = () => {
   }, [isMobile, setUIMode]);
 
   // Latest render values, read inside the focus effect without re-subscribing it
-  // to every frame (so the else-branch zoom-out doesn't fire on every tick).
-  const latest = useRef({ nodes, scale, dimensions, uiMode, animationTime });
-  latest.current = { nodes, scale, dimensions, uiMode, animationTime };
+  // to every change (so the else-branch zoom-out doesn't fire spuriously).
+  const latest = useRef({ nodes, scale, dimensions, uiMode });
+  latest.current = { nodes, scale, dimensions, uiMode };
 
   // Responsive sizing
   useEffect(() => {
     const updateDimensions = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      setDimensions({ width, height });
-      setCanvasSize({ width, height });
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
     };
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
-  }, [setCanvasSize]);
+  }, []);
 
   // Fit the layout to the viewport. Desktop: shrink the constellation so its
   // outermost node bodies (+ labels) always stay on screen. Mobile: size the
@@ -86,29 +82,6 @@ const SkillTree: React.FC = () => {
     );
     setScale(Math.max(0.35, fit));
   }, [dimensions, isMobile]);
-
-  // Orbital animation loop. Uses an ACCUMULATOR that only advances while nodes
-  // are actually orbiting (uiMode === 'orbital', not focused), so pausing
-  // during a zoom-in and resuming afterward is seamless — no angle jump.
-  // Gated to 'orbital' only: 'static'/'new' layouts don't depend on
-  // animationTime at all, so advancing it there would just force a full
-  // re-render of every node 60x/sec for no positional benefit.
-  const elapsed = useRef(0);
-  useEffect(() => {
-    let raf = 0;
-    let last = Date.now();
-    const animate = () => {
-      const now = Date.now();
-      if (!focusedNodeId && uiMode === 'orbital') {
-        elapsed.current += now - last;
-        setAnimationTime(elapsed.current);
-      }
-      last = now;
-      raf = requestAnimationFrame(animate);
-    };
-    raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
-  }, [focusedNodeId, uiMode]);
 
   // Camera: zoom into the focused node, or back out to the whole universe.
   // Desktop only — on mobile a focused node opens a full-screen modal instead,
@@ -146,6 +119,12 @@ const SkillTree: React.FC = () => {
   const mobileContentTop = getMobileContentTop(scale);
   const stageHeight = isMobile ? getMobileContentHeight(scale) : dimensions.height;
   const nodeCenterY = isMobile ? mobileContentTop : centerY;
+
+  // Desktop: clicking empty space backs out of a focused node. On mobile the
+  // full-screen modal covers the canvas and its ✕ is the way out.
+  const handleBackgroundClick = React.useCallback(() => {
+    if (!isMobile && focusedNodeId) clearFocus();
+  }, [isMobile, focusedNodeId, clearFocus]);
 
   const getCursorStyle = () => {
     if (hoveredNodeId && hoveredNodeId === activeNodeId) {
@@ -185,6 +164,7 @@ const SkillTree: React.FC = () => {
           width={dimensions.width}
           height={stageHeight}
           interactive={!isMobile}
+          onBackgroundClick={handleBackgroundClick}
         >
           <Layer>
             {uiMode === 'new' && !focusedNodeId && (
@@ -202,7 +182,6 @@ const SkillTree: React.FC = () => {
                 centerX={centerX}
                 centerY={nodeCenterY}
                 scale={scale}
-                animationTime={animationTime}
               />
             ))}
           </Layer>
