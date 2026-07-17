@@ -99,7 +99,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
     let baseFontSize;
     switch (node.level) {
       case 0:
-        baseFontSize = radius * 0.28;
+        baseFontSize = radius * 0.26; // centre node — a touch smaller so "Adnan Jalil" fits one line
         break;
       case 1:
         baseFontSize = radius * 0.33;
@@ -118,7 +118,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
     const labelY = y + bodySize / 2 + 6;
     switch (node.level) {
       case 0:
-        return { width: radius * 1.8, height: radius * 1.7, offsetX: radius * 0.9, offsetY: 0, y: labelY, lineHeight: 1.1 };
+        return { width: radius * 2.2, height: radius * 1.7, offsetX: radius * 1.1, offsetY: 0, y: labelY, lineHeight: 1.1 };
       case 1:
         return { width: radius * 2.4, height: radius * 1.9, offsetX: radius * 1.2, offsetY: 0, y: labelY, lineHeight: 1.2 };
       case 2:
@@ -222,6 +222,10 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   // would otherwise call these ~6 times per iteration x 24 iterations).
   const fontSize = getFontSize();
   const textConfig = getTextConfig();
+  // The centre node's name is hand-split onto two lines ("Firas" / "Adnan
+  // Jalil") so it never fragments one word per line; the widened level-0 label
+  // box (getTextConfig) keeps the second line together.
+  const labelText = node.id === 'center' ? 'Firas\nAdnan Jalil' : node.label;
 
   return (
     <Group>
@@ -240,7 +244,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
               key={`outline-${dx}-${dy}`}
               x={x + dx}
               y={textConfig.y + dy}
-              text={node.label}
+              text={labelText}
               fontSize={fontSize}
               fontFamily="'Roboto Mono', monospace"
               fontStyle="400"
@@ -264,7 +268,7 @@ const SkillNode: React.FC<SkillNodeProps> = ({
       <Text
         x={x}
         y={textConfig.y}
-        text={node.label}
+        text={labelText}
         fontSize={fontSize}
         fontFamily="'Roboto Mono', monospace"
         fontStyle="400"

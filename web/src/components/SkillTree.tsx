@@ -163,7 +163,7 @@ const SkillTree: React.FC = () => {
           ref={stageRef}
           width={dimensions.width}
           height={stageHeight}
-          interactive={!isMobile}
+          interactive={!isMobile && !focusedNodeId}
           onBackgroundClick={handleBackgroundClick}
         >
           <Layer>

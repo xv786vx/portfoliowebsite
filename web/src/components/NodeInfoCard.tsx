@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSkillTreeStore } from '../store/skillTreeStore';
 import type { PortfolioNodeData } from '../types/portfolioTypes';
-import resumePdf from '../assets/firasaj_resume_august2025.pdf';
+import resumePdf from '../assets/firasaj_resume_jun26 (2).pdf';
 
 interface CardLink {
   label: string;
@@ -83,7 +83,11 @@ export const NodeCardContent: React.FC<{ data: PortfolioNodeData }> = ({ data })
 
       {/* Body blurb */}
       {data.extended_desc && (
-        <p className="text-base leading-relaxed text-neutral-400 mb-4">{data.extended_desc}</p>
+        <p className="text-base leading-relaxed text-neutral-400 mb-4">
+          {Array.isArray(data.extended_desc)
+            ? data.extended_desc.join(" ")
+            : data.extended_desc}
+        </p>
       )}
 
       {/* Technologies (compact) */}
@@ -140,7 +144,7 @@ const NodeInfoCard: React.FC = () => {
             <button
               type="button"
               onClick={clearFocus}
-              className="mb-3 text-sm uppercase tracking-widest text-neutral-500 hover:text-white transition-colors"
+              className="mb-3 block text-left text-sm uppercase tracking-widest text-neutral-500 hover:text-white transition-colors"
             >
               [ ESC ] ← BACK
             </button>
