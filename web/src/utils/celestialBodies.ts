@@ -5,7 +5,7 @@ import { AsciiEngine, rotateX, rotateY, normalize, samplePalette, brightenHex } 
 // in src/assets: the EHT black hole, Pluto (planets), Bennu (asteroids).
 
 /** EHT accretion disk: black core → deep red → orange → gold → white hot-spot */
-export const BLACKHOLE_PALETTE = ['#000000', '#2a0700', '#7a1e00', '#d64500', '#ff8c1a', '#ffd27f', '#fff6e0'];
+export const BLACKHOLE_PALETTE = ['#160c06', '#2a0700', '#7a1e00', '#d64500', '#ff8c1a', '#ffd27f', '#fff6e0'];
 
 /** Distinct natural planet palettes; one is chosen per node by id hash */
 export const PLANET_PALETTES: string[][] = [
@@ -48,7 +48,7 @@ export const PLANET_PROFILES: Record<string, PlanetProfile> = {
   // Jupiter — ochre gas giant, strong horizontal bands, fast spin, red spot +
   // a few circular storm blotches
   jupiter: {
-    palette: ['#140f04', '#3a2c0d', '#6f5518', '#a98432', '#d6b25e', '#ecd79a', '#fbf1cf'],
+    palette: ['#241405', '#5a3708', '#9c6414', '#e0932a', '#ffbe4d', '#ffe08c', '#fff6d8'],
     bandStrength: 0.22, bandFreq: 9.0, noiseScale: 1.6, tilt: 0.08, rotSpeed: 0.5,
     spin: 'horizontal',
     spot: { lon: 0.6, lat: -0.5, size: 0.5, darken: 0.35 },
@@ -56,7 +56,7 @@ export const PLANET_PROFILES: Record<string, PlanetProfile> = {
   },
   // Neptune — deep icy blue, subtle bands, a dark storm spot + storm discolouration
   neptune: {
-    palette: ['#03080f', '#0b2036', '#164a6e', '#2f83b0', '#79c0e0', '#c4e8f7', '#ffffff'],
+    palette: ['#04101f', '#0a2f5c', '#1560a8', '#2f95e0', '#5cc0ff', '#a6e2ff', '#e8f7ff'],
     bandStrength: 0.05, bandFreq: 7.0, noiseScale: 2.2, tilt: 0.25, rotSpeed: 0.32,
     spin: 'vertical',
     spot: { lon: -0.8, lat: 0.4, size: 0.45, darken: 0.3 },
@@ -64,34 +64,34 @@ export const PLANET_PROFILES: Record<string, PlanetProfile> = {
   },
   // Mars — rusty, near-zero bands, cratered/mottled surface; tumbles diagonally
   mars: {
-    palette: ['#160805', '#3e1810', '#7a2c17', '#b5502a', '#d98b52', '#e9c39a', '#fff2e0'],
+    palette: ['#25090a', '#5e1410', '#a82818', '#e05028', '#ff8347', '#ffb47e', '#ffe2c4'],
     bandStrength: 0.02, bandFreq: 6.0, noiseScale: 4.2, tilt: 0.35, rotSpeed: 0.3,
     spin: 'diagonal',
     craters: { count: 6, strength: 0.3, seed: 7 },
   },
   // Uranus — pale cyan, very smooth, extreme axial tilt; a few faint craters
   uranus: {
-    palette: ['#04100c', '#0c2b22', '#1c5140', '#3f9bad', '#8fd6e0', '#c8f0f4', '#f0ffff'],
+    palette: ['#041518', '#0a3a44', '#127085', '#25b0c8', '#5ce0f0', '#a8f2fb', '#e6feff'],
     bandStrength: 0.03, bandFreq: 5.0, noiseScale: 1.4, tilt: 1.55, rotSpeed: 0.28,
     spin: 'antidiagonal',
     craters: { count: 3, strength: 0.14, seed: 31 },
   },
 };
 
-/** Icy blue-grey cratered dwarf planet (Pluto/Ceres-like) — used for the small
- *  outer nodes that previously rendered as comets. */
+/** Icy amethyst/violet cratered dwarf planet — used for the small outer nodes
+ *  that previously rendered as comets. */
 export const DWARF_PLANET_PROFILE: PlanetProfile = {
-  palette: ['#0a0e14', '#1c2733', '#33475a', '#5a7286', '#8aa6b8', '#bcd4e0', '#eef6fb'],
+  palette: ['#100a1f', '#241640', '#3d2a70', '#6a4fb0', '#9a82e0', '#c9bef2', '#efeaff'],
   bandStrength: 0.0, bandFreq: 5.0, noiseScale: 3.6, tilt: 0.4, rotSpeed: 0.25,
   spin: 'horizontal',
   craters: { count: 7, strength: 0.34, seed: 47 },
 };
 
-/** Bennu-like rocky greys: near-black → mid grey → light dusty grey */
-export const ASTEROID_PALETTE = ['#070707', '#1c1c1c', '#333230', '#524f49', '#7a746a', '#a89f92', '#d0c8ba'];
+/** Rocky steel-blue: dark slate → cool grey-blue → bright dusty highlight */
+export const ASTEROID_PALETTE = ['#0e1014', '#232833', '#3d4654', '#5f6f82', '#8598ad', '#b3c4d6', '#e0ecf6'];
 
-/** Metallic / M-type asteroid: near-black → iron brown → bronze → warm tan */
-export const METALLIC_ASTEROID_PALETTE = ['#080605', '#1e1712', '#3a2a1e', '#5c4530', '#87684a', '#b39678', '#dcc7ab'];
+/** Metallic / M-type asteroid: dark → iron brown → bronze → warm copper tan */
+export const METALLIC_ASTEROID_PALETTE = ['#171009', '#372413', '#5e4022', '#8c6438', '#bd9056', '#e4bd86', '#f7e2bd'];
 
 /** A distinct asteroid variety (silhouette + surface + palette). Two profiles are
  *  alternated across the asteroid nodes so neighbours don't look identical. */
@@ -115,7 +115,7 @@ export const ASTEROID_PROFILES: AsteroidProfile[] = [
       { amp: 0.08, freq: 5, phase: 2.1 },
       { amp: 0.06, freq: 7, phase: 4.3 },
     ],
-    baseR: 0.85, noiseScale: 4.0, rotSpeed: 0.3, tilt: 0.4, flatten: 0.08,
+    baseR: 0.85, noiseScale: 4.0, rotSpeed: 0.52, tilt: 0.4, flatten: 0.08,
   },
   // Type B — metallic bronze: elongated (strong 2-lobe), craggier, slower tumble
   {
@@ -125,7 +125,7 @@ export const ASTEROID_PROFILES: AsteroidProfile[] = [
       { amp: 0.07, freq: 5, phase: 3.0 },
       { amp: 0.05, freq: 9, phase: 5.2 },
     ],
-    baseR: 0.82, noiseScale: 5.5, rotSpeed: 0.22, tilt: 0.65, flatten: 0.0,
+    baseR: 0.82, noiseScale: 5.5, rotSpeed: 0.4, tilt: 0.65, flatten: 0.0,
   },
 ];
 
@@ -231,7 +231,7 @@ export const generatePlanet = (
     // Mix palette position from luminance AND angular position for varied patches.
     // Floored so the night side samples a visible derived tone, never near-black.
     const angle = (Math.atan2(v, u) / Math.PI + 1) * 0.5; // 0..1
-    const mix = Math.max(0.3, lum * 0.6 + angle * 0.4);
+    const mix = Math.max(0.35, lum * 0.6 + angle * 0.4);
     const base = samplePalette(palette, mix);
     return brightness !== 1.0 ? brightenHex(base, brightness) : base;
   };
@@ -455,7 +455,9 @@ export const generateAsteroid = (
   profile: AsteroidProfile,
   speedMul: number,
   brightness: number,
-  lightAngle: number
+  lightAngle: number,
+  /** 0-3, seeded per node so neighbouring asteroids tumble differently. */
+  spinVariant: number = 0
 ) => {
   const A = time * profile.rotSpeed * speedMul;
   const B = profile.tilt;
@@ -466,7 +468,7 @@ export const generateAsteroid = (
   // visible dusty tone rather than dropping to black).
   const getColor = (lum: number, u: number, v: number): string => {
     const noiseVal = noise2D(u * 4 + A, v * 4) * 0.3;
-    const t = Math.max(0.32, Math.min(1, lum + noiseVal));
+    const t = Math.max(0.36, Math.min(1, lum + noiseVal));
     const base = samplePalette(palette, t);
     return brightness !== 1.0 ? brightenHex(base, brightness) : base;
   };
@@ -483,8 +485,27 @@ export const generateAsteroid = (
     if (baseR > irregularR) return -1;
     const normR = baseR / irregularR;
     const w = Math.sqrt(Math.max(0, 1.0 - normR * normR));
-    let [nx, ny, nz] = rotateY(u / irregularR, v / irregularR, w, A);
-    [nx, ny, nz] = rotateX(nx, ny, nz, B);
+    const sx = u / irregularR, sy = v / irregularR;
+    // Each asteroid tumbles on a different axis/direction (seeded per node) so
+    // neighbouring rocks don't all roll the same way — mirrors the planet spins.
+    let nx = 0, ny = 0, nz = 0;
+    switch (spinVariant & 3) {
+      case 1: // horizontal spin, reversed direction
+        [nx, ny, nz] = rotateY(sx, sy, w, -A);
+        [nx, ny, nz] = rotateX(nx, ny, nz, B);
+        break;
+      case 2: // vertical spin (top ↔ bottom)
+        [nx, ny, nz] = rotateX(sx, sy, w, A);
+        [nx, ny, nz] = rotateY(nx, ny, nz, B);
+        break;
+      case 3: // diagonal tumble
+        [nx, ny, nz] = rotateY(sx, sy, w, A * 0.72);
+        [nx, ny, nz] = rotateX(nx, ny, nz, A * 0.72 + B);
+        break;
+      default: // 0: horizontal spin (original)
+        [nx, ny, nz] = rotateY(sx, sy, w, A);
+        [nx, ny, nz] = rotateX(nx, ny, nz, B);
+    }
     const lon = Math.atan2(nx, nz);
     const lat = Math.asin(Math.max(-1, Math.min(1, ny)));
     const rockNoise = fbm(lon * profile.noiseScale, lat * profile.noiseScale, 3);
@@ -509,7 +530,7 @@ export const generateComet = (
   brightness: number,
   lightAngle: number
 ) => {
-  const A = time * 0.4 * speedMul;
+  const A = time * 0.7 * speedMul;
   const B = 0.4;
   const light = normalize([Math.cos(lightAngle) * 0.7, Math.sin(lightAngle) * 0.5, -0.6]);
 

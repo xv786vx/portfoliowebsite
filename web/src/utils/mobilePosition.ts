@@ -6,10 +6,12 @@ export const MOBILE_ORDER = [
   "center", // Firas Adnan Jalil
   "contact",
   "experience",
+  "experience_agency",
   "experience_vertige",
   "experience_owh",
   "skill_education",
   "projects",
+  "project_toygfs",
   "project_syncer",
   "project_lstm",
   "project_ss",
@@ -19,9 +21,11 @@ export const MOBILE_ORDER = [
 // Horizontal offset factor per subnode (× OFFSET_UNIT). Level-2 nodes alternate
 // left/right of center so their line to the parent fans out as a diagonal.
 const MOBILE_X_OFFSET: Record<string, number> = {
+  experience_agency: 1,
   experience_vertige: -1,
   experience_owh: 1,
   skill_education: -1,
+  project_toygfs: -1,
   project_syncer: 1,
   project_lstm: -1,
   project_ss: 1,

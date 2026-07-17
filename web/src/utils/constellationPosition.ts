@@ -2,31 +2,33 @@ import type { SkillNode } from "../store/skillTreeStore";
 
 // Hand-placed offsets (unscaled px from the centered black hole) per node —
 // deliberately IRREGULAR (not evenly spaced, unlike the cardinal/arc static
-// layout), but composed as a WIDE, SHALLOW band: the chart runs roughly 3x as
-// far horizontally as it does vertically, so it suits landscape viewports
-// instead of fighting them. +x is right, +y is DOWN (screen coords).
+// layout), composed as a balanced fan that leans only moderately wider than it
+// is tall (~2.25:1). It fills a landscape viewport without stretching edge to
+// edge. +x is right, +y is DOWN (screen coords).
 //
 // Two rules hold the composition together:
 //   - Each branch fans OUTWARD from center along its own side — projects and
 //     its children to the left, experience and its children to the right — so
 //     |x| grows with depth and the connection lines read as arms, not a tangle.
 //     contact is childless, so it rides the right arm to keep the halves even.
-//   - y values stay small and varied. They carry the constellation's scatter;
-//     x carries the reach.
+//   - Children spread across a real vertical range (not just x), so each arm
+//     opens into height rather than reaching further sideways.
 const LAYOUT: Record<string, { x: number; y: number }> = {
-  // Left arm — projects (level 1) and its four children.
-  projects: { x: -255, y: -25 },
-  project_recipelens: { x: -300, y: 150 },
-  project_ss: { x: -455, y: -140 },
-  project_syncer: { x: -505, y: 45 },
-  project_lstm: { x: -630, y: -55 },
+  // Left arm — projects (level 1) and its five children.
+  projects: { x: -230, y: -10 },
+  project_ss: { x: -300, y: -190 },
+  project_syncer: { x: -470, y: -110 },
+  project_lstm: { x: -390, y: 75 },
+  project_recipelens: { x: -540, y: 175 },
+  project_toygfs: { x: -300, y: 240 },
 
-  // Right arm — experience (level 1), its three children, and contact.
-  contact: { x: 215, y: -175 },
-  experience: { x: 265, y: 55 },
-  skill_education: { x: 430, y: -95 },
-  experience_vertige: { x: 490, y: 120 },
-  experience_owh: { x: 640, y: -20 },
+  // Right arm — experience (level 1), its four children, and contact.
+  contact: { x: 180, y: -200 },
+  experience: { x: 240, y: 20 },
+  skill_education: { x: 530, y: -185 },
+  experience_owh: { x: 390, y: -70 },
+  experience_vertige: { x: 490, y: 110 },
+  experience_agency: { x: 320, y: 200 },
 };
 
 /**

@@ -158,6 +158,23 @@
     "duration": "Hackathon project (3 days)",
     "role": "UI/UX Designer & Full-Stack Developer"
   },
+  "project_toygfs": {
+    "id": "project_toygfs",
+    "label": "ToyGFS",
+    "description": "Distributed File System in C",
+    "extended_desc": [
+      "ToyGFS is my implementation of a distributed file system in C, based on Google's 2003 GFS paper — files are stored across a cluster of servers rather than on a single machine.",
+      "A master node coordinates metadata while chunkservers hold the data; every 1MB chunk is replicated across three servers, and the master watches heartbeats to re-replicate chunks whenever a server drops.",
+      "Clients move data directly to and from the chunkservers over a custom binary TCP protocol, and an ncurses TUI dashboard visualizes files, chunk locations, and live system events."
+    ],
+    "technologies": [
+      "C",
+      "TCP Sockets",
+      "ncurses",
+      "Makefile"
+    ],
+    "link": "https://github.com/GaminRick7/ToyGFS"
+  },
   "experience_vertige": {
     "id": "experience_vertige",
     "label": "Data Analyst Intern",
@@ -174,6 +191,15 @@
     "extended_desc": [
       "Gained valuable experience in mobile app development and UI/UX design during my internship at Our Wave Hub, a Toronto-based technology incubator.",
       "Developed a complete iOS application focused on mental health and wellness, incorporating modern design principles and engaging user experience features."
+    ]
+  },
+  "experience_agency": {
+    "id": "experience_agency",
+    "label": "Frontend Software Developer",
+    "description": "AgencyAnalytics",
+    "extended_desc": [
+      "I'm currently a Frontend Software Developer at AgencyAnalytics (https://agencyanalytics.com/), a Toronto-based marketing reporting and analytics platform.",
+      "Day to day I build new frontend features, improve the user experience, and debug existing issues across the product."
     ]
   },
   "skill_education": {

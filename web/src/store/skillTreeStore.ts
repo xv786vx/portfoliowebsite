@@ -55,6 +55,7 @@ const initialNodes: SkillNode[] = [
       "project_lstm",
       "project_ss",
       "project_recipelens",
+      "project_toygfs",
     ],
     portfolioData: portfolioData.projects,
   },
@@ -66,6 +67,7 @@ const initialNodes: SkillNode[] = [
     isHovered: false,
     connections: [
       "center",
+      "experience_agency",
       "experience_vertige",
       "experience_owh",
       "skill_education",
@@ -130,7 +132,25 @@ const initialNodes: SkillNode[] = [
     connections: ["projects"],
     portfolioData: portfolioData.project_recipelens,
   },
+  {
+    id: "project_toygfs",
+    label: portfolioData.project_toygfs.label,
+    level: 2,
+    isActive: false,
+    isHovered: false,
+    connections: ["projects"],
+    portfolioData: portfolioData.project_toygfs,
+  },
   // Experience nodes
+  {
+    id: "experience_agency",
+    label: portfolioData.experience_agency.label,
+    level: 2,
+    isActive: false,
+    isHovered: false,
+    connections: ["experience"],
+    portfolioData: portfolioData.experience_agency,
+  },
   {
     id: "experience_vertige",
     label: portfolioData.experience_vertige.label,

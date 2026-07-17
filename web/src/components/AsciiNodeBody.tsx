@@ -15,6 +15,8 @@ interface AsciiNodeBodyProps {
   planetProfile?: PlanetProfile;
   /** Per-asteroid variety profile (only used when type === 'asteroid'). */
   asteroidProfile?: AsteroidProfile;
+  /** 0-3 spin-axis/direction selector for asteroids (seeded per node). */
+  spinVariant?: number;
   /** Base rotation/animation speed multiplier for this body */
   speedMul: number;
   /** Angle (radians, screen space) from this body toward the black hole — the
@@ -28,7 +30,7 @@ interface AsciiNodeBodyProps {
 }
 
 const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
-  x, y, size, palette, planetProfile, asteroidProfile, speedMul, lightAngle, isHovered, type, onClick, onMouseEnter, onMouseLeave
+  x, y, size, palette, planetProfile, asteroidProfile, spinVariant = 0, speedMul, lightAngle, isHovered, type, onClick, onMouseEnter, onMouseLeave
 }) => {
   const imageRef = useRef<Konva.Image>(null);
   // Accumulated animation "phase", integrated frame-by-frame at the CURRENT
@@ -66,7 +68,9 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
       // of destroying the palette by swapping to a flat white. Speed is baked
       // into the phase accumulation (see phaseRef above), so the generators
       // receive it as a plain, already-scaled elapsed time (speedMul=1).
-      const brightness = isHovered ? 1.5 : 1.0;
+      // 1.9× so the boost still reads on already-light palettes (e.g. the
+      // steel-blue asteroid) whose lit side otherwise clamps near white at 1.5×.
+      const brightness = isHovered ? 1.9 : 1.0;
       const speed = isHovered ? speedMul * 1.6 : speedMul;
       phaseRef.current += dt * speed;
       if (!draw) return;
@@ -79,7 +83,7 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
       } else if (type === 'blackhole') {
         generateBlackHole(engine, ctx, time, palette, 1, brightness, isHovered ? 1 : 0);
       } else if (type === 'asteroid' && asteroidProfile) {
-        generateAsteroid(engine, ctx, time, asteroidProfile, 1, brightness, lightAngle);
+        generateAsteroid(engine, ctx, time, asteroidProfile, 1, brightness, lightAngle, spinVariant);
       } else if (type === 'comet') {
         generateComet(engine, ctx, time, palette, 1, brightness, lightAngle);
       }
@@ -90,7 +94,7 @@ const AsciiNodeBody: React.FC<AsciiNodeBodyProps> = ({
     };
 
     return registerAsciiTicker(tick);
-  }, [engine, ctx, canvas, palette, planetProfile, asteroidProfile, speedMul, lightAngle, isHovered, type]);
+  }, [engine, ctx, canvas, palette, planetProfile, asteroidProfile, spinVariant, speedMul, lightAngle, isHovered, type]);
 
   return (
     <Group x={x} y={y}>

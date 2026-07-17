@@ -4,14 +4,22 @@ import { fbm, hash } from './celestialBodies';
 // Recreates the old pixel wallpaper (a dark diagonal nebula band + twinkling
 // stars on black) as a VERY DARK animated ASCII field. One full-viewport canvas.
 
-// Nebula cloud colors (dim indigo). Kept deliberately dark.
-const NEBULA_LOW: [number, number, number] = [10, 10, 26]; // #0a0a1a
-const NEBULA_HIGH: [number, number, number] = [42, 42, 78]; // #2a2a4e
+// Nebula cloud colors — two vivid purple families the cloud drifts between
+// across the field (and slowly in time) so it reads as a colourful purple
+// nebula rather than a flat band: deep indigo ↔ violet-magenta, faint → bright.
+const NEBULA_A_LOW: [number, number, number] = [22, 14, 54];
+const NEBULA_A_HIGH: [number, number, number] = [96, 66, 208];
+const NEBULA_B_LOW: [number, number, number] = [44, 14, 66];
+const NEBULA_B_HIGH: [number, number, number] = [170, 70, 212];
 // Sparse density ramp, faint → slightly denser.
 const NEBULA_CHARS = '.:*+%'.split('');
 
-function mix(a: [number, number, number], b: [number, number, number], t: number): string {
-  return `rgb(${Math.round(a[0] + (b[0] - a[0]) * t)},${Math.round(a[1] + (b[1] - a[1]) * t)},${Math.round(a[2] + (b[2] - a[2]) * t)})`;
+type RGB = [number, number, number];
+function lerp3(a: RGB, b: RGB, t: number): RGB {
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+}
+function rgbStr(c: RGB): string {
+  return `rgb(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])})`;
 }
 
 const STAR_GLYPHS = ['+', '×', '·', '+'];
@@ -119,7 +127,12 @@ export function renderBackground(
       density = Math.max(0, Math.min(1, density));
       if (density > 0.08) {
         const ci = Math.min(NEBULA_CHARS.length - 1, Math.floor(density * NEBULA_CHARS.length));
-        ctx.fillStyle = mix(NEBULA_LOW, NEBULA_HIGH, density);
+        // Hue drifts across the field (and slowly over time) so the cloud
+        // shifts between the cyan-blue and violet-magenta families.
+        const hueT = 0.5 + 0.5 * Math.sin(u * 2.4 + v * 1.3 + time * 0.05);
+        const low = lerp3(NEBULA_A_LOW, NEBULA_B_LOW, hueT);
+        const high = lerp3(NEBULA_A_HIGH, NEBULA_B_HIGH, hueT);
+        ctx.fillStyle = rgbStr(lerp3(low, high, density));
         ctx.fillText(NEBULA_CHARS[ci], col * cw, row * ch);
       }
 
@@ -128,14 +141,17 @@ export function renderBackground(
       if (hs > 0.972) {
         const tw = 0.45 + 0.55 * Math.sin(time * 1.8 + hs * 137.0);
         if (hs > 0.9955) {
-          // rare bright 4-point sparkle (cream/white)
-          const b = 120 + Math.floor(110 * tw);
-          ctx.fillStyle = `rgb(${b},${b},${Math.floor(b * 0.92)})`;
+          // rare bright 4-point sparkle (bright cream/white)
+          const b = 150 + Math.floor(105 * tw);
+          ctx.fillStyle = `rgb(${b},${b},${Math.floor(b * 0.9)})`;
           ctx.fillText('✦', col * cw, row * ch);
         } else {
-          // common faint plus/cross/dot star
-          const g = 40 + Math.floor(90 * tw);
-          ctx.fillStyle = `rgb(${g},${g},${g + 12})`;
+          // common star — brighter, tinted warm gold or cool blue for colour
+          const g = 70 + Math.floor(120 * tw);
+          const warm = Math.floor(hs * 997) % 3 === 0;
+          ctx.fillStyle = warm
+            ? `rgb(${g},${Math.floor(g * 0.82)},${Math.floor(g * 0.55)})`
+            : `rgb(${Math.floor(g * 0.78)},${Math.floor(g * 0.62)},${g})`;
           ctx.fillText(STAR_GLYPHS[Math.floor(hs * 997) % STAR_GLYPHS.length], col * cw, row * ch);
         }
       }

@@ -206,6 +206,9 @@ const SkillNode: React.FC<SkillNodeProps> = ({
             type="asteroid"
             palette={asteroidProfile.palette}
             asteroidProfile={asteroidProfile}
+            // Higher seed bits (bit 0 already picks dwarf vs asteroid) → a
+            // decorrelated 0-3 spin variant so neighbours tumble differently.
+            spinVariant={(seed >>> 5) & 3}
             speedMul={1}
             size={bodySize}
           />
