@@ -1,4 +1,4 @@
-import { AsciiEngine, rotateX, rotateY, normalize, samplePalette, brightenHex, lerpColor } from './asciiMath';
+import { AsciiEngine, rotateX, rotateY, normalize, samplePalette, brightenHex } from './asciiMath';
 
 // ─── Palettes (dark → bright, multi-stop) ──────────────────────────────────────
 // Each is sampled by luminance via samplePalette(). They evoke the reference art
@@ -42,24 +42,6 @@ export interface PlanetProfile {
   spot?: { lon: number; lat: number; size: number; darken: number };
   /** Optional scattered circular features (craters / storm blotches). */
   craters?: { count: number; strength: number; seed: number };
-  /** When set, the planet renders as a habitable Earth-like world — oceans,
-   *  continents, polar ice caps and a drifting cloud layer — instead of the
-   *  banded/cratered surface. */
-  earthlike?: EarthlikeConfig;
-}
-
-/** Surface recipe for a habitable, Earth-like planet. Colours are per-terrain so
- *  land/water/ice/cloud read as their own regions rather than one gradient. */
-export interface EarthlikeConfig {
-  ocean: string[];     // deep → shallow water
-  land: string[];      // coast → highland (green → olive → brown)
-  ice: string;         // polar caps + mountain snow
-  cloud: string;       // cloud tint
-  seaLevel: number;    // elevation (0..1) below which terrain is ocean
-  iceLatitude: number; // |lat| in radians beyond which ice caps form
-  cloudScale: number;  // cloud-noise frequency (higher = wispier)
-  cloudCover: number;  // 0..1 threshold; clouds appear above it (higher = fewer)
-  cloudDrift: number;  // longitudinal drift speed of the cloud layer
 }
 
 export const PLANET_PROFILES: Record<string, PlanetProfile> = {
@@ -146,19 +128,16 @@ export const MOON_INFORMAL: PlanetProfile[] = [
   },
 ];
 
-/** A single habitable Earth — blue oceans, green/brown continents, white polar
- *  ice caps and a drifting white cloud layer. Used for the Education node. */
+/** Earth — the Education node. Rendered exactly like the experience-node moons
+ *  (a normal cratered sphere), just recoloured: the palette runs deep-ocean navy →
+ *  ocean blue → land green → tan → white highlight, so the sphere reads as a
+ *  blue/green/white world. Because it uses the standard planet path (colour tied
+ *  to shading), it has no gap/speckle issues — same as the moons. */
 export const EARTH_PROFILE: PlanetProfile = {
-  palette: ['#0a1f2e', '#1567b0', '#2c6b2f', '#8a6a3a', '#e8f2ff'],
-  bandStrength: 0, bandFreq: 5, noiseScale: 2.0, tilt: 0.28, rotSpeed: 0.26,
+  palette: ['#041d38', '#0a3760', '#0f4f80', '#2f6f40', '#5f8f3a', '#a8a884', '#e8f2ff'],
+  bandStrength: 0, bandFreq: 5, noiseScale: 3.4, tilt: 0.30, rotSpeed: 0.24,
   spin: 'horizontal',
-  earthlike: {
-    ocean: ['#031a3a', '#0a3a6e', '#1974bd'],
-    land: ['#123518', '#2c6b2f', '#6b7a2f', '#8a6a3a'],
-    ice: '#e8f2ff',
-    cloud: '#f2f6ff',
-    seaLevel: 0.48, iceLatitude: 1.16, cloudScale: 3.2, cloudCover: 0.60, cloudDrift: 0.035,
-  },
+  craters: { count: 6, strength: 0.22, seed: 21 },
 };
 
 /** Rocky steel-blue: dark slate → cool grey-blue → bright dusty highlight */
@@ -300,16 +279,8 @@ export const generatePlanet = (
   // light source, so the whole scene reads as one gravitationally-bound world.
   const light = normalize([Math.cos(lightAngle) * 0.75, Math.sin(lightAngle) * 0.45, -0.65]);
 
-  const earth = profile.earthlike;
-
-  // Earth-like worlds compute their colour per-terrain inside the luminance pass
-  // (which knows lon/lat/elevation) and stash it here for getColor to read back
-  // on the same pixel — render() calls fillChar then getColor in lock-step.
-  let pendingColor = '';
-
   // Color varies by surface position (longitude) for multi-color regions
   const getColor = (lum: number, u: number, v: number): string => {
-    if (earth) return pendingColor;
     // Mix palette position from luminance AND angular position for varied patches.
     // Floored so the night side samples a visible derived tone, never near-black.
     const angle = (Math.atan2(v, u) / Math.PI + 1) * 0.5; // 0..1
@@ -346,45 +317,6 @@ export const generatePlanet = (
     }
     const lon = Math.atan2(nx, nz);
     const lat = Math.asin(Math.max(-1, Math.min(1, ny)));
-
-    // ── Habitable / Earth-like surface ──────────────────────────────────────
-    if (earth) {
-      const Ls = shade(nx, ny, nz, light);          // directional light, 0..1
-      // Continents: low-frequency terrain noise thresholded at sea level.
-      const elev = fbm(lon * profile.noiseScale + 12.3, lat * profile.noiseScale + 7.1, 5);
-      const latAbs = Math.abs(lat);
-      // Ice caps: poleward of iceLatitude, with a noisy (ragged) edge, plus snow
-      // on the highest land.
-      const iceEdge = earth.iceLatitude - (elev - 0.5) * 0.28;
-      const isIce = latAbs > iceEdge || elev > 0.86;
-
-      let base: string;
-      if (isIce) {
-        base = earth.ice;
-      } else if (elev < earth.seaLevel) {
-        base = samplePalette(earth.ocean, elev / earth.seaLevel);       // ocean: shallower toward coast
-      } else {
-        base = samplePalette(earth.land, (elev - earth.seaLevel) / (1 - earth.seaLevel)); // land: coast → highland
-      }
-
-      // Drifting cloud layer — a second, independent noise field advected in
-      // longitude over time; covers land and sea alike.
-      const cloud = fbm((lon + time * earth.cloudDrift) * earth.cloudScale + 31.7,
-                        lat * earth.cloudScale + 19.4, 4);
-      if (cloud > earth.cloudCover) {
-        const cover = Math.min(1, (cloud - earth.cloudCover) / (1 - earth.cloudCover)) * 0.9;
-        base = lerpColor(base, earth.cloud, cover);
-      }
-
-      // Shade the terrain colour by the lit hemisphere; a floor keeps the night
-      // side a dim-but-visible tone rather than an empty glyph.
-      const f = 0.4 + Ls * 0.95;
-      pendingColor = brightenHex(base, brightness !== 1.0 ? f * brightness : f);
-      // Glyph density follows the shading (plus a touch of terrain texture),
-      // floored so the shadowed side stays lightly-textured, not near-empty.
-      return Math.max(0.30, Math.min(1, 0.26 + Ls * 0.78 + (elev - 0.5) * 0.06));
-    }
-
     const terrainNoise = fbm(lon * profile.noiseScale, lat * profile.noiseScale, 4);
     const banding = profile.bandStrength * Math.sin(lat * profile.bandFreq);
     let L = shade(nx, ny, nz, light);

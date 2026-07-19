@@ -35,10 +35,12 @@ const CATEGORY_PLANETS: Record<string, keyof typeof PLANET_PROFILES> = {
 };
 
 // Per-node body-size overrides. The two informal-experience moons (a club
-// experience and a HS co-op) read a touch smaller than the real-internship moon.
+// experience and a HS co-op) read a touch smaller than the real-internship moon,
+// and Earth (Education) is a small world hanging off the black hole.
 const NODE_SIZE_OVERRIDES: Record<string, number> = {
   experience_owh: 76,     // Our Wave Hub (HS co-op)
   experience_vertige: 76, // Vertige Investment Group (club experience)
+  skill_education: 68,    // Earth
 };
 
 // Explicit asteroid-variety overrides for the project nodes. Listed here, a node
@@ -116,14 +118,14 @@ const SkillNode: React.FC<SkillNodeProps> = ({
   const radius = baseRadius * scale;
 
   // Actual rendered body size (mirrors renderNodeShape) — used to place the label
-  // just below the body. Level-2 splits into dwarf planets vs asteroids.
+  // just below the body. A per-node override wins outright; otherwise level-2
+  // splits into dwarf planets (even hash) vs asteroids (odd).
   const bodySize = node.level === 0
     ? NODE_SIZES.LEVEL_0 * scale
     : node.level === 1
     ? NODE_SIZES.LEVEL_1 * scale
-    : hashStr(node.id) % 2 === 0
-    ? (NODE_SIZE_OVERRIDES[node.id] ?? NODE_SIZES.DWARF) * scale // dwarf planet
-    : NODE_SIZES.ASTEROID * scale;                              // asteroid
+    : (NODE_SIZE_OVERRIDES[node.id]
+        ?? (hashStr(node.id) % 2 === 0 ? NODE_SIZES.DWARF : NODE_SIZES.ASTEROID)) * scale;
 
   // Calculate font size
   const getFontSize = () => {
