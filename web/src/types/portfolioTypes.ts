@@ -21,8 +21,6 @@ export interface PortfolioNodeData {
   contact_methods?: ContactMethod[];
   link?: string;
   live_demo?: string;
-  // Shown on the card body: a tech-tag row and a role/duration meta line.
+  // Shown on the card body: a tech-tag row.
   technologies?: string[];
-  role?: string;
-  duration?: string;
 }

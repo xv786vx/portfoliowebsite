@@ -38,7 +38,7 @@ const initialNodes: SkillNode[] = [
     level: 0,
     isActive: true,
     isHovered: false,
-    connections: ["projects", "experience", "contact"],
+    connections: ["projects", "experience", "contact", "skill_education"],
     portfolioData: portfolioData.center,
   },
   // First level nodes
@@ -56,6 +56,7 @@ const initialNodes: SkillNode[] = [
       "project_ss",
       "project_recipelens",
       "project_toygfs",
+      "project_honck",
     ],
     portfolioData: portfolioData.projects,
   },
@@ -70,7 +71,6 @@ const initialNodes: SkillNode[] = [
       "experience_agency",
       "experience_vertige",
       "experience_owh",
-      "skill_education",
     ],
     portfolioData: portfolioData.experience,
   },
@@ -141,6 +141,15 @@ const initialNodes: SkillNode[] = [
     connections: ["projects"],
     portfolioData: portfolioData.project_toygfs,
   },
+  {
+    id: "project_honck",
+    label: portfolioData.project_honck.label,
+    level: 2,
+    isActive: false,
+    isHovered: false,
+    connections: ["projects"],
+    portfolioData: portfolioData.project_honck,
+  },
   // Experience nodes
   {
     id: "experience_agency",
@@ -175,7 +184,7 @@ const initialNodes: SkillNode[] = [
     level: 2,
     isActive: false,
     isHovered: false,
-    connections: ["experience"],
+    connections: ["center"],
     portfolioData: portfolioData.skill_education,
   },
 ];

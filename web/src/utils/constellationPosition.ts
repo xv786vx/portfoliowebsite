@@ -14,21 +14,25 @@ import type { SkillNode } from "../store/skillTreeStore";
 //   - Children spread across a real vertical range (not just x), so each arm
 //     opens into height rather than reaching further sideways.
 const LAYOUT: Record<string, { x: number; y: number }> = {
-  // Left arm — projects (level 1) and its five children.
+  // Left arm — projects (level 1) and its six children.
   projects: { x: -230, y: -10 },
+  project_honck: { x: -560, y: -180 },
   project_ss: { x: -300, y: -190 },
-  project_syncer: { x: -470, y: -110 },
+  project_syncer: { x: -470, y: -60 },
   project_lstm: { x: -390, y: 75 },
   project_recipelens: { x: -540, y: 175 },
   project_toygfs: { x: -300, y: 240 },
 
-  // Right arm — experience (level 1), its four children, and contact.
+  // Right arm — experience (level 1), its three children, and contact.
   contact: { x: 180, y: -200 },
   experience: { x: 240, y: 20 },
-  skill_education: { x: 530, y: -185 },
-  experience_owh: { x: 390, y: -70 },
-  experience_vertige: { x: 490, y: 110 },
-  experience_agency: { x: 320, y: 200 },
+  experience_owh: { x: 430, y: -120 },
+  experience_vertige: { x: 500, y: 70 },
+  experience_agency: { x: 360, y: 205 },
+
+  // Education hangs directly off the black hole (center), so it sits on its own
+  // as a clean vertical drop below center rather than in the experience cluster.
+  skill_education: { x: 40, y: 285 },
 };
 
 /**

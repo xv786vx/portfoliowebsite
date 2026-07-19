@@ -32,7 +32,7 @@
     "description": "Portfolio & Commercial Work",
     "extended_desc": [
       "All the projects I've worked on, exploring different fields I'm interested in.",
-      "Click on any project node to see detailed information, technologies used, and live demos."
+      "Click on any project node to learn more about the project, technologies used and live demos."
     ]
   },
   "experience": {
@@ -40,8 +40,8 @@
     "label": "Experience",
     "description": "Internships & Development",
     "extended_desc": [
-      "My professional journey includes diverse internship experiences across financial technology and mobile app development.",
-      "Click on experience nodes to see detailed achievements, technologies used, and skills gained."
+      "All the formal and informal experiences I've had thus far.",
+      "Click on experience nodes to learn more about each one."
     ]
   },
   "contact": {
@@ -49,8 +49,7 @@
     "label": "Contact",
     "description": "Get in touch",
     "extended_desc": [
-      "I'm always interested in discussing new opportunities, collaborating on exciting projects, or simply connecting with fellow developers.",
-      "Whether you have a project in mind, need technical consultation, or just want to chat about technology, feel free to reach out!"
+
     ],
     "contact_methods": [
       {
@@ -88,18 +87,15 @@
       "OAuth 2.0"
     ],
     "link": "https://getsyncer.tech",
-    "live_demo": "https://chromewebstore.google.com/detail/syncer/ggkbmppglbhmcoiplbopfldojdnehabh?authuser=0&hl=en",
-    "duration": "6 months",
-    "role": "Creator"
+    "live_demo": "https://chromewebstore.google.com/detail/syncer/ggkbmppglbhmcoiplbopfldojdnehabh?authuser=0&hl=en"
   },
   "project_lstm": {
     "id": "project_lstm",
     "label": "LSTM Stock Predictor",
     "description": "AI-Powered Stock Forecasting & Strategy Backtesting",
     "extended_desc": [
-      "A machine learning-driven tool that predicts stock prices using LSTM neural networks and backtests trading strategies with dynamic portfolio simulation.",
-      "I had always wanted to build something that utilized neural networks and applied to financial markets since I loved that intersection of ideas, and this was my first foray into it!",
-      "It will be constantly improved on and updated as I learn more about building neural networks, preprocessing data and synthesizing meaningful results from different implementations."
+      "An LSTM model that predicts the next day's closing price of a given selection of stocks, and backtests a simple trading strategy based on the model's predictions.",
+      "I had always wanted to build something that utilized neural networks and applied to financial markets since I loved that intersection of ideas, and this was my first foray into it!"
     ],
     "technologies": [
       "Python",
@@ -108,42 +104,34 @@
       "Matplotlib",
       "yFinance"
     ],
-    "link": "https://github.com/xv786vx/lstm-visualizer",
-    "duration": "2 months",
-    "role": "Machine Learning Developer"
+    "link": "https://github.com/xv786vx/lstm-visualizer"
   },
   "project_ss": {
     "id": "project_ss",
     "label": "Study Showdown",
-    "description": "Chrome Extension & Web App",
+    "description": "Hack the 6ix",
     "extended_desc": [
       "Study Showdown incentivizes staying on track with studying by tracking the sites each user visits in a given period.",
-      "Built for Hack the 6ix 2024, this Chrome Extension connects to a NextJS website to gamify productivity.",
-      "By staying on studying and productivity-based domains like KhanAcademy, you earn points, and by going on unproductive websites, you lose points.",
-      "At the end of each session, your points are calculated and ranked amongst other users on a global leaderboard!"
-    ],
+      "It's comprised of a Chrome Extension that the user interacts with to see their productivity for the session, and a NextJS website that tracks users on a leaderboard.",
+      "By staying on studying and productivity-based domains like KhanAcademy, players earn points, and by going on unproductive websites, they lose points."    ],
     "technologies": [
       "NextJS",
-      "TypeScript + JavaScript",
+      "TypeScript",
       "React",
       "TailwindCSS",
-      "Auth0",
-      "Google Auth",
       "MongoDB Atlas",
       "Prisma"
     ],
-    "link": "https://github.com/WaterBoi06/HT6-Study-Showdown-",
-    "duration": "Hackathon project (3 days)",
-    "role": "Frontend Developer"
+    "link": "https://github.com/WaterBoi06/HT6-Study-Showdown-"
   },
   "project_recipelens": {
     "id": "project_recipelens",
     "label": "RecipeLens",
-    "description": "Flutter Mobile App - Best UI/UX Winner",
+    "description": "IgnitionHacks - Best UI/UX Design Award",
     "extended_desc": [
       "RecipeLens is a mobile app designed to help users discover recipes based on available ingredients while accommodating dietary restrictions.",
-      "Whether you're a college student with limited ingredients, a parent figuring out meals for children, or a professional cook looking to sharpen skills, RecipeLens provides high-quality recipes in an accessible way.",
-      "The app won Best UI/UX at Ignition Hacks 2023, showcasing exceptional design and user experience despite being built by a team with no prior Flutter experience."
+      "You can take a photo of your ingredients or search them up manually, and the app will return a list of recipes with applied filters for your dietary needs.",
+      "We won Best UI/UX at Ignition Hacks 2023, despite none of us having any prior Flutter experience!"
     ],
     "technologies": [
       "Flutter",
@@ -153,17 +141,15 @@
       "Spoonacular API",
       "Figma"
     ],
-    "link": "https://github.com/cy1der/ignitionv4",
-    "live_demo": "https://youtu.be/FqT2UZ11g0Y",
-    "duration": "Hackathon project (3 days)",
-    "role": "UI/UX Designer & Full-Stack Developer"
+    "link": "https://github.com/cy1der/recipelens",
+    "live_demo": "https://youtu.be/FqT2UZ11g0Y"
   },
   "project_toygfs": {
     "id": "project_toygfs",
     "label": "ToyGFS",
     "description": "Distributed File System in C",
     "extended_desc": [
-      "ToyGFS is my implementation of a distributed file system in C, based on Google's 2003 GFS paper — files are stored across a cluster of servers rather than on a single machine.",
+      "ToyGFS is my implementation of a distributed file system in C, based on Google's 2003 GFS paper. Files are stored across a cluster of servers rather than on a single machine.",
       "A master node coordinates metadata while chunkservers hold the data; every 1MB chunk is replicated across three servers, and the master watches heartbeats to re-replicate chunks whenever a server drops.",
       "Clients move data directly to and from the chunkservers over a custom binary TCP protocol, and an ncurses TUI dashboard visualizes files, chunk locations, and live system events."
     ],
@@ -175,28 +161,49 @@
     ],
     "link": "https://github.com/GaminRick7/ToyGFS"
   },
+  "project_honck": {
+    "id": "project_honck",
+    "label": "HONCK!",
+    "description": "Hack the North - Top 30",
+    "extended_desc": [
+      "HONCK! is a productivity robot built with a Raspberry Pi and camera, stuffed in a goose plushie!",
+      "It takes a snapshot of you in your workspace and analyzes your behaviour via object detection, and makes a honk if it detects you're procrastinating.",
+      "I built it at Hack the North 2025, where it placed top 30 out of the whole hackathon. A React Native app talks to a FastAPI backend, while YoloV8 handles object detection and Groq reasons about how productive you're actually being."
+    ],
+    "technologies": [
+      "React Native",
+      "FastAPI",
+      "Python",
+      "Raspberry Pi",
+      "OpenCV",
+      "YoloV8",
+      "Groq"
+    ],
+    "link": "https://github.com/xv786vx/hackthenorth",
+    "live_demo": "https://devpost.com/software/honck"
+  },
   "experience_vertige": {
     "id": "experience_vertige",
-    "label": "Data Analyst Intern",
-    "description": "Vertige Investment Group",
+    "label": "Vertige Investment Group",
+    "description": "Data Analyst Intern",
     "extended_desc": [
-      "Gained comprehensive experience in financial analysis and machine learning during my internship at Vertige Investment Group, a finance organization based out of the University of Toronto.",
-      "Worked on DCF valuations, built predictive models for stock price forecasting, and developed trading strategies backed by machine learning algorithms."
+      "I gained hands-on experience in financial analysis and machine learning during my time at Vertige Investment Group, a finance extracurricular organization based out of the University of Toronto.",
+      "I worked on DCF valuations and built a trade strategy using an LSTM model to predict daily closing prices of FAANG companies."
     ]
   },
   "experience_owh": {
     "id": "experience_owh",
-    "label": "Mobile Developer Intern",
-    "description": "Our Wave Hub",
+    "label": "Our Wave Hub",
+    "description": "Mobile Developer Intern",
     "extended_desc": [
-      "Gained valuable experience in mobile app development and UI/UX design during my internship at Our Wave Hub, a Toronto-based technology incubator.",
-      "Developed a complete iOS application focused on mental health and wellness, incorporating modern design principles and engaging user experience features."
+      "I gained valuable experience in mobile app development and UI/UX design during my high school co-op at Our Wave Hub, a Toronto-based technology incubator.",
+      "I developed a complete iOS application focused on mental health and wellness, incorporating modern design principles and engaging user experience features."
     ]
   },
   "experience_agency": {
     "id": "experience_agency",
-    "label": "Frontend Software Developer",
-    "description": "AgencyAnalytics",
+    "label": "AgencyAnalytics",
+    "description": "Frontend Software Developer",
     "extended_desc": [
       "I'm currently a Frontend Software Developer at AgencyAnalytics (https://agencyanalytics.com/), a Toronto-based marketing reporting and analytics platform.",
       "Day to day I build new frontend features, improve the user experience, and debug existing issues across the product."
@@ -205,10 +212,9 @@
   "skill_education": {
     "id": "skill_education",
     "label": "Education",
-    "description": "Academic background",
+    "description": "GPA: 3.56/4.00",
     "extended_desc": [
-      "Strong academic foundation in computer science with specialization in Artificial Intelligence at the University of Toronto.",
-      "Currently pursuing advanced coursework in machine learning, data structures, and software engineering while actively participating in quantitative trading teams and technology organizations."
+      "I'm currently a 3rd-year student pursuing a degree in Computer Science at the University of Toronto."
     ]
   }
 }

@@ -10,7 +10,11 @@ import {
   PLANET_PROFILES,
   ASTEROID_PROFILES,
   DWARF_PLANET_PROFILE,
+  MOON_REAL,
+  MOON_INFORMAL,
+  EARTH_PROFILE,
   hashStr,
+  type PlanetProfile,
 } from '../utils/celestialBodies';
 
 // Pixel art constants - actual sizes for the bounding regions
@@ -30,11 +34,38 @@ const CATEGORY_PLANETS: Record<string, keyof typeof PLANET_PROFILES> = {
   contact: 'uranus',
 };
 
-// Per-node body-size overrides (dwarf planets). The internship nodes read a bit
-// larger than their sibling dwarf planets.
+// Per-node body-size overrides. The two informal-experience moons (a club
+// experience and a HS co-op) read a touch smaller than the real-internship moon.
 const NODE_SIZE_OVERRIDES: Record<string, number> = {
-  experience_owh: 84,     // Mobile Developer Intern
-  experience_vertige: 84, // Data Analyst Intern
+  experience_owh: 76,     // Our Wave Hub (HS co-op)
+  experience_vertige: 76, // Vertige Investment Group (club experience)
+};
+
+// Explicit asteroid-variety overrides for the project nodes. Listed here, a node
+// is forced to render as an asteroid (never a dwarf planet) with a deliberately
+// chosen rock type rather than whatever its id-hash happens to pick. The value
+// indexes ASTEROID_PROFILES: 0 = grey carbonaceous (Type A), 1 = brown metallic
+// (Type B).
+const ASTEROID_VARIANT_OVERRIDES: Record<string, number> = {
+  // Brown metallic asteroids
+  project_honck: 1,
+  project_ss: 1,
+  project_recipelens: 1,
+  // Grey carbonaceous asteroids
+  project_syncer: 0,
+  project_toygfs: 0,
+  project_lstm: 0,
+};
+
+// The experience nodes render as moons — round cratered spheres orbiting the
+// Experience planet — distinct from the irregular project asteroids. AgencyAnalytics
+// (a real internship) gets the warm blue+brown moon; Vertige (a club experience)
+// and Our Wave Hub (a HS co-op) share the ashen "informal" moon so they read as
+// not-real-internships. The separate "Education" node is intentionally left out.
+const MOON_NODE_PROFILES: Record<string, PlanetProfile> = {
+  experience_agency: MOON_REAL,
+  experience_vertige: MOON_INFORMAL[0],
+  experience_owh: MOON_INFORMAL[1],
 };
 
 // A node renders as an asteroid when it's an outer (level ≥ 2) node whose id-hash
@@ -122,9 +153,11 @@ const SkillNode: React.FC<SkillNodeProps> = ({
       case 1:
         return { width: radius * 2.4, height: radius * 1.9, offsetX: radius * 1.2, offsetY: 0, y: labelY, lineHeight: 1.2 };
       case 2:
-        return { width: radius * 2.8, height: radius * 2.1, offsetX: radius * 1.4, offsetY: 0, y: labelY, lineHeight: 1.2 };
+        // Wide enough that a long single-word company label (e.g. "AgencyAnalytics")
+        // stays on one contiguous line instead of breaking mid-word.
+        return { width: radius * 3.6, height: radius * 2.1, offsetX: radius * 1.8, offsetY: 0, y: labelY, lineHeight: 1.2 };
       default:
-        return { width: radius * 2.8, height: radius * 2.1, offsetX: radius * 1.4, offsetY: 0, y: labelY, lineHeight: 1.2 };
+        return { width: radius * 3.6, height: radius * 2.1, offsetX: radius * 1.8, offsetY: 0, y: labelY, lineHeight: 1.2 };
     }
   };
 
@@ -185,7 +218,36 @@ const SkillNode: React.FC<SkillNodeProps> = ({
       }
       case 2: // Level 2 - Outer nodes → dwarf planet or asteroid (stable per node id)
       default: {
-        const isDwarf = seed % 2 === 0; // formerly comets → now icy cratered dwarf planets
+        // Education → Earth (a habitable home world hanging off the black hole).
+        if (node.id === 'skill_education') {
+          return (
+            <AsciiNodeBody
+              {...commonProps}
+              type="planet"
+              palette={EARTH_PROFILE.palette}
+              planetProfile={EARTH_PROFILE}
+              speedMul={0.85}
+              size={bodySize}
+            />
+          );
+        }
+        // Experience nodes → moons (cratered spheres).
+        const moon = MOON_NODE_PROFILES[node.id];
+        if (moon) {
+          return (
+            <AsciiNodeBody
+              {...commonProps}
+              type="planet"
+              palette={moon.palette}
+              planetProfile={moon}
+              speedMul={0.7}
+              size={bodySize}
+            />
+          );
+        }
+        const variantOverride = ASTEROID_VARIANT_OVERRIDES[node.id];
+        // Overridden nodes are always asteroids; otherwise even-hash → dwarf planet.
+        const isDwarf = variantOverride === undefined && seed % 2 === 0;
         if (isDwarf) {
           return (
             <AsciiNodeBody
@@ -198,8 +260,10 @@ const SkillNode: React.FC<SkillNodeProps> = ({
             />
           );
         }
-        // Asteroid: alternate between the two asteroid varieties.
-        const asteroidProfile = ASTEROID_PROFILES[getAsteroidVariant(nodes, node.id)];
+        // Asteroid: use the explicit per-node override when set, else alternate
+        // between the two asteroid varieties.
+        const asteroidProfile =
+          ASTEROID_PROFILES[variantOverride ?? getAsteroidVariant(nodes, node.id)];
         return (
           <AsciiNodeBody
             {...commonProps}

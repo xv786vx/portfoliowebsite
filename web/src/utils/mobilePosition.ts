@@ -4,18 +4,19 @@ import type { SkillNode } from "../store/skillTreeStore";
 // immediately by their subnodes so the connecting lines read as a downward flow.
 export const MOBILE_ORDER = [
   "center", // Firas Adnan Jalil
+  "skill_education", // hangs directly off center
   "contact",
   "experience",
   "experience_agency",
   "experience_vertige",
   "experience_owh",
-  "skill_education",
   "projects",
   "project_toygfs",
   "project_syncer",
   "project_lstm",
   "project_ss",
   "project_recipelens",
+  "project_honck",
 ];
 
 // Horizontal offset factor per subnode (× OFFSET_UNIT). Level-2 nodes alternate
@@ -24,12 +25,12 @@ const MOBILE_X_OFFSET: Record<string, number> = {
   experience_agency: 1,
   experience_vertige: -1,
   experience_owh: 1,
-  skill_education: -1,
   project_toygfs: -1,
   project_syncer: 1,
   project_lstm: -1,
   project_ss: 1,
   project_recipelens: -1,
+  project_honck: 1,
 };
 
 // Unscaled base metrics (multiplied by `scale` at call time).

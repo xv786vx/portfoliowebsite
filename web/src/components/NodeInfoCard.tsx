@@ -60,9 +60,6 @@ export const LinkRow: React.FC<{ link: CardLink }> = ({ link }) => {
  *  mobile full-screen modal. */
 export const NodeCardContent: React.FC<{ data: PortfolioNodeData }> = ({ data }) => {
   const links = buildLinks(data);
-  // Secondary meta shown on the subtitle row — omitted entirely when the node
-  // carries no real role/duration of its own.
-  const meta = data.role || data.duration;
 
   return (
     <>
@@ -71,14 +68,9 @@ export const NodeCardContent: React.FC<{ data: PortfolioNodeData }> = ({ data })
         {data.label}
       </h2>
 
-      {/* Subtitle: description and meta stacked, each wrapping within the card */}
+      {/* Subtitle: description wrapping within the card */}
       <div className="border-b border-white/15 pb-2 mb-3">
         <p className="text-base text-neutral-300 break-words">{data.description}</p>
-        {meta && (
-          <p className="mt-1 text-sm uppercase tracking-wider text-neutral-500 break-words">
-            {meta}
-          </p>
-        )}
       </div>
 
       {/* Body blurb */}

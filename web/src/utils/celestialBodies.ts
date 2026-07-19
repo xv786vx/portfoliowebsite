@@ -1,4 +1,4 @@
-import { AsciiEngine, rotateX, rotateY, normalize, samplePalette, brightenHex } from './asciiMath';
+import { AsciiEngine, rotateX, rotateY, normalize, samplePalette, brightenHex, lerpColor } from './asciiMath';
 
 // ─── Palettes (dark → bright, multi-stop) ──────────────────────────────────────
 // Each is sampled by luminance via samplePalette(). They evoke the reference art
@@ -42,6 +42,24 @@ export interface PlanetProfile {
   spot?: { lon: number; lat: number; size: number; darken: number };
   /** Optional scattered circular features (craters / storm blotches). */
   craters?: { count: number; strength: number; seed: number };
+  /** When set, the planet renders as a habitable Earth-like world — oceans,
+   *  continents, polar ice caps and a drifting cloud layer — instead of the
+   *  banded/cratered surface. */
+  earthlike?: EarthlikeConfig;
+}
+
+/** Surface recipe for a habitable, Earth-like planet. Colours are per-terrain so
+ *  land/water/ice/cloud read as their own regions rather than one gradient. */
+export interface EarthlikeConfig {
+  ocean: string[];     // deep → shallow water
+  land: string[];      // coast → highland (green → olive → brown)
+  ice: string;         // polar caps + mountain snow
+  cloud: string;       // cloud tint
+  seaLevel: number;    // elevation (0..1) below which terrain is ocean
+  iceLatitude: number; // |lat| in radians beyond which ice caps form
+  cloudScale: number;  // cloud-noise frequency (higher = wispier)
+  cloudCover: number;  // 0..1 threshold; clouds appear above it (higher = fewer)
+  cloudDrift: number;  // longitudinal drift speed of the cloud layer
 }
 
 export const PLANET_PROFILES: Record<string, PlanetProfile> = {
@@ -85,6 +103,62 @@ export const DWARF_PLANET_PROFILE: PlanetProfile = {
   bandStrength: 0.0, bandFreq: 5.0, noiseScale: 3.6, tilt: 0.4, rotSpeed: 0.25,
   spin: 'horizontal',
   craters: { count: 7, strength: 0.34, seed: 47 },
+};
+
+// Cratered moons for the experience nodes. Round, smooth spheres (vs the
+// irregular lumpy asteroids used for projects). Two looks encode whether the role
+// was a real internship:
+//   • MOON_REAL      — a warm blue+brown moon (cool slate body, tan sunlit
+//                      highlights) for actual internships/jobs.
+//   • MOON_INFORMAL  — a muted, ashen grey moon (no warmth) for the "not a real
+//                      internship" experiences (a club experience, a HS co-op),
+//                      so they read as a matched, secondary pair.
+// Both stay clearly apart from the steel-grey / metallic-brown project asteroids
+// by silhouette (a smooth cratered sphere, not a jagged rock).
+
+/** Palette for a real internship/job moon: blue-slate → warm tan highlight. */
+const MOON_REAL_PALETTE = ['#0a0f16', '#1a2634', '#37485e', '#6a6f7c', '#9a8f7c', '#c2a880', '#ecdcbc'];
+/** Palette for the informal (non-internship) moons: desaturated ashen grey. */
+const MOON_INFORMAL_PALETTE = ['#0c0f12', '#20262c', '#3a434b', '#5a636b', '#828a8f', '#a6adad', '#c8cdc7'];
+
+/** The "real internship" moon (AgencyAnalytics). */
+export const MOON_REAL: PlanetProfile = {
+  palette: MOON_REAL_PALETTE,
+  bandStrength: 0, bandFreq: 5, noiseScale: 3.6, tilt: 0.38, rotSpeed: 0.24,
+  spin: 'horizontal',
+  craters: { count: 8, strength: 0.36, seed: 13 },
+};
+
+/** Two informal-experience moons — the SAME ashen palette (so they group as
+ *  "not real internships") but different craters/tumble so they aren't twins. */
+export const MOON_INFORMAL: PlanetProfile[] = [
+  {
+    palette: MOON_INFORMAL_PALETTE,
+    bandStrength: 0, bandFreq: 5, noiseScale: 3.6, tilt: 0.42, rotSpeed: 0.22,
+    spin: 'vertical',
+    craters: { count: 8, strength: 0.38, seed: 29 },
+  },
+  {
+    palette: MOON_INFORMAL_PALETTE,
+    bandStrength: 0, bandFreq: 5, noiseScale: 3.9, tilt: 0.50, rotSpeed: 0.20,
+    spin: 'diagonal',
+    craters: { count: 9, strength: 0.40, seed: 53 },
+  },
+];
+
+/** A single habitable Earth — blue oceans, green/brown continents, white polar
+ *  ice caps and a drifting white cloud layer. Used for the Education node. */
+export const EARTH_PROFILE: PlanetProfile = {
+  palette: ['#0a1f2e', '#1567b0', '#2c6b2f', '#8a6a3a', '#e8f2ff'],
+  bandStrength: 0, bandFreq: 5, noiseScale: 2.0, tilt: 0.28, rotSpeed: 0.26,
+  spin: 'horizontal',
+  earthlike: {
+    ocean: ['#031a3a', '#0a3a6e', '#1974bd'],
+    land: ['#123518', '#2c6b2f', '#6b7a2f', '#8a6a3a'],
+    ice: '#e8f2ff',
+    cloud: '#f2f6ff',
+    seaLevel: 0.48, iceLatitude: 1.16, cloudScale: 3.2, cloudCover: 0.60, cloudDrift: 0.035,
+  },
 };
 
 /** Rocky steel-blue: dark slate → cool grey-blue → bright dusty highlight */
@@ -226,8 +300,16 @@ export const generatePlanet = (
   // light source, so the whole scene reads as one gravitationally-bound world.
   const light = normalize([Math.cos(lightAngle) * 0.75, Math.sin(lightAngle) * 0.45, -0.65]);
 
+  const earth = profile.earthlike;
+
+  // Earth-like worlds compute their colour per-terrain inside the luminance pass
+  // (which knows lon/lat/elevation) and stash it here for getColor to read back
+  // on the same pixel — render() calls fillChar then getColor in lock-step.
+  let pendingColor = '';
+
   // Color varies by surface position (longitude) for multi-color regions
   const getColor = (lum: number, u: number, v: number): string => {
+    if (earth) return pendingColor;
     // Mix palette position from luminance AND angular position for varied patches.
     // Floored so the night side samples a visible derived tone, never near-black.
     const angle = (Math.atan2(v, u) / Math.PI + 1) * 0.5; // 0..1
@@ -264,6 +346,45 @@ export const generatePlanet = (
     }
     const lon = Math.atan2(nx, nz);
     const lat = Math.asin(Math.max(-1, Math.min(1, ny)));
+
+    // ── Habitable / Earth-like surface ──────────────────────────────────────
+    if (earth) {
+      const Ls = shade(nx, ny, nz, light);          // directional light, 0..1
+      // Continents: low-frequency terrain noise thresholded at sea level.
+      const elev = fbm(lon * profile.noiseScale + 12.3, lat * profile.noiseScale + 7.1, 5);
+      const latAbs = Math.abs(lat);
+      // Ice caps: poleward of iceLatitude, with a noisy (ragged) edge, plus snow
+      // on the highest land.
+      const iceEdge = earth.iceLatitude - (elev - 0.5) * 0.28;
+      const isIce = latAbs > iceEdge || elev > 0.86;
+
+      let base: string;
+      if (isIce) {
+        base = earth.ice;
+      } else if (elev < earth.seaLevel) {
+        base = samplePalette(earth.ocean, elev / earth.seaLevel);       // ocean: shallower toward coast
+      } else {
+        base = samplePalette(earth.land, (elev - earth.seaLevel) / (1 - earth.seaLevel)); // land: coast → highland
+      }
+
+      // Drifting cloud layer — a second, independent noise field advected in
+      // longitude over time; covers land and sea alike.
+      const cloud = fbm((lon + time * earth.cloudDrift) * earth.cloudScale + 31.7,
+                        lat * earth.cloudScale + 19.4, 4);
+      if (cloud > earth.cloudCover) {
+        const cover = Math.min(1, (cloud - earth.cloudCover) / (1 - earth.cloudCover)) * 0.9;
+        base = lerpColor(base, earth.cloud, cover);
+      }
+
+      // Shade the terrain colour by the lit hemisphere; a floor keeps the night
+      // side a dim-but-visible tone rather than an empty glyph.
+      const f = 0.4 + Ls * 0.95;
+      pendingColor = brightenHex(base, brightness !== 1.0 ? f * brightness : f);
+      // Glyph density follows the shading (plus a touch of terrain texture),
+      // floored so the shadowed side stays lightly-textured, not near-empty.
+      return Math.max(0.30, Math.min(1, 0.26 + Ls * 0.78 + (elev - 0.5) * 0.06));
+    }
+
     const terrainNoise = fbm(lon * profile.noiseScale, lat * profile.noiseScale, 4);
     const banding = profile.bandStrength * Math.sin(lat * profile.bandFreq);
     let L = shade(nx, ny, nz, light);
@@ -274,9 +395,9 @@ export const generatePlanet = (
       const feature = craterField(lon, lat, profile.craters.seed, profile.craters.count);
       L *= 1 + feature * profile.craters.strength;
     }
-    // Ambient term (0.16 + terrain) keeps the unlit hemisphere a visible,
+    // Ambient term (+ terrain) keeps the unlit hemisphere a visible,
     // lightly-textured tone instead of dropping to an empty black glyph.
-    L += 0.16 + terrainNoise * 0.08;
+    L += 0.20 + terrainNoise * 0.08;
     // Optional dark surface feature (e.g. Great Red Spot / Neptune dark spot),
     // fixed to the surface so it rotates with the planet.
     if (profile.spot) {
@@ -288,7 +409,9 @@ export const generatePlanet = (
         L *= 1.0 - profile.spot.darken * falloff * falloff;
       }
     }
-    return Math.max(0.16, Math.min(1, L));
+    // Floor lifted so the shadowed side never bottoms out to near-empty glyphs —
+    // that read as an overly dark phase lingering through the slow rotation.
+    return Math.max(0.30, Math.min(1, L));
   }, getColor);
 };
 
@@ -510,8 +633,10 @@ export const generateAsteroid = (
     const lat = Math.asin(Math.max(-1, Math.min(1, ny)));
     const rockNoise = fbm(lon * profile.noiseScale, lat * profile.noiseScale, 3);
     let L = shade(nx, ny, nz, light);
-    L = L * (0.5 + rockNoise * 0.4) + 0.16 + rockNoise * 0.08;
-    return Math.max(0.16, Math.min(1, L));
+    // Ambient + a lifted floor so the shadowed side stays a lightly-textured tone
+    // rather than a near-empty, lingering-dark phase as the rock slowly tumbles.
+    L = L * (0.5 + rockNoise * 0.4) + 0.20 + rockNoise * 0.08;
+    return Math.max(0.30, Math.min(1, L));
   }, getColor);
 };
 
