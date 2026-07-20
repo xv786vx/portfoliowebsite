@@ -105,7 +105,7 @@ export class AsciiEngine {
     const ch = ctx.canvas.height / this.height;
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.font = `bold ${Math.floor(ch * 1.05)}px "Roboto Mono", "Courier New", monospace`;
+    ctx.font = `bold ${Math.floor(ch * 1.05)}px "PT Mono", "Courier New", monospace`;
     ctx.textBaseline = 'top';
     ctx.textAlign = 'left';
 

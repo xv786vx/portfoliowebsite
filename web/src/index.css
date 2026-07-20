@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    font-family: "Roboto Mono", monospace;
+    font-family: "PT Mono", monospace;
     font-weight: 300;
   }
 
@@ -14,7 +14,7 @@
 
   /* Body/UI text is a thin monospace code font everywhere */
   body {
-    font-family: "Roboto Mono", monospace;
+    font-family: "PT Mono", monospace;
     font-weight: 300;
   }
 

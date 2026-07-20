@@ -63,7 +63,7 @@ const MobileLines: React.FC<MobileLinesProps> = ({ centerX, contentTop, scale = 
           x={m.x}
           y={m.y}
           fontSize={m.fontSize}
-          fontFamily='"Roboto Mono", monospace'
+          fontFamily='"PT Mono", monospace'
           fill="rgba(190,200,230,0.5)"
           offsetX={m.fontSize / 2}
           offsetY={m.fontSize / 2}

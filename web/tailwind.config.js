@@ -15,8 +15,8 @@ export default {
 
       fontFamily: {
         serif: ['"DM Serif Display"', 'Georgia', 'serif'],
-        mono: ['"Roboto Mono"', 'monospace'],
-        sans: ['"Roboto Mono"', 'monospace'],
+        mono: ['"PT Mono"', 'monospace'],
+        sans: ['"PT Mono"', 'monospace'],
       },
     },
   },

@@ -108,7 +108,7 @@ export function renderBackground(
   ctx.fillRect(0, 0, W, H);
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.font = `${Math.floor(ch * 1.05)}px "Roboto Mono", "Courier New", monospace`;
+  ctx.font = `${Math.floor(ch * 1.05)}px "PT Mono", "Courier New", monospace`;
 
   const MAX_SHIFT_PX = 16;
   ctx.save();
