@@ -3,306 +3,193 @@ import { Layer } from 'react-konva';
 import { motion } from 'framer-motion';
 import { useSkillTreeStore } from '../store/skillTreeStore';
 import SkillNode from './SkillNode';
-import OrbitalCircles from './OrbitalCircles';
 import ZoomPanStage, { type ZoomPanStageRef } from './ZoomPanStage';
-import DetailModal from './DetailModal';
-import ConnectionLines from './ConnectionLines';
-import UIToggle from './UIToggle';
-import backgroundImage from '../assets/nnewbackground1920_1080.png';
-import { getOrbitalPosition } from '../utils/orbitalPosition';
-import { getStaticPosition } from '../utils/staticPosition';
+import ConstellationLines from './ConstellationLines';
+import AsciiBackground from './AsciiBackground';
+import NodeInfoCard from './NodeInfoCard';
+import MobileNodeModal from './MobileNodeModal';
+import MobileLines from './MobileLines';
 
-// Import cursor images (you'll need to create these)
-import rocketCursor from '../assets/cursor32.png';
-import rocketHoverCursor from '../assets/cursor_hover32.png';
+import { getConstellationPosition, getConstellationExtent } from '../utils/constellationPosition';
+import {
+  getMobileContentTop,
+  getMobileContentHeight,
+} from '../utils/mobilePosition';
+import { useIsMobile } from '../hooks/useIsMobile';
+
+// Import cursor images
+
+// Camera scale when zoomed into a focused node.
+const FOCUS_SCALE = 2.4;
+// Fraction of screen width where a focused node is centered (right 75% region).
+const FOCUS_SCREEN_X = 0.625;
+// Padding (px) reserved around the constellation so node bodies + labels near
+// the edges are never cropped when fitting the layout to the viewport.
+const FIT_MARGIN = 110;
 
 const SkillTree: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<ZoomPanStageRef>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [scale, setScale] = useState(1);
-  const [animationTime, setAnimationTime] = useState(0);
-  const [isCenteringWithSpring, setIsCenteringWithSpring] = useState(false);
-  const [isOrbitalsPaused, setIsOrbitalsPaused] = useState(false);
-  const pausedAnimationTime = useRef(0);
-  
-  const { 
-    nodes, 
-    setCanvasSize, 
-    activeNodeId, 
-    hoveredNodeId, 
-    isDetailModalOpen, 
-    detailModalNodeId, 
-    closeDetailModal,
-    uiMode
-  } = useSkillTreeStore();
-  const lastActiveNodeId = useRef<string | null>(null);
-  const isInitialLoad = useRef(true);
-  
-  // Center the stage on the active node when it changes (instant positioning)
-  useEffect(() => {
-    // Skip animation on initial load
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      lastActiveNodeId.current = activeNodeId;
-      return;
-    }
-    
-    // Only animate if the active node actually changed
-    if (activeNodeId && activeNodeId !== lastActiveNodeId.current && stageRef.current) {
-      const activeNode = nodes.find(node => node.id === activeNodeId);
-      if (activeNode) {
-        const centerX = dimensions.width / 2;
-        const centerY = dimensions.height / 2;
-        
-        // Pause orbital rotation to prevent movement during positioning (only needed in orbital mode)
-        if (uiMode === 'orbital') {
-          setIsOrbitalsPaused(true);
-          // Capture the current animation time for paused state
-          pausedAnimationTime.current = animationTime;
-        }
-        setIsCenteringWithSpring(true);
-        
-        // Get the current position based on UI mode
-        const currentPosition = uiMode === 'orbital' 
-          ? getOrbitalPosition(activeNode, centerX, centerY, scale, pausedAnimationTime.current)
-          : getStaticPosition(activeNode, centerX, centerY, scale);
-        
-        // Instantly center on the node (duration = 0)
-        stageRef.current.immediateCenter(currentPosition.x, currentPosition.y);
-        
-        // Resume orbital motion after a brief delay to ensure positioning is complete
-        // (only needed in orbital mode)
-        if (uiMode === 'orbital') {
-          setTimeout(() => {
-            setIsOrbitalsPaused(false);
-            setIsCenteringWithSpring(false);
-          }, 50); // Very brief delay for clean transition
-        } else {
-          // In static mode, just finish the centering immediately
-          setIsOrbitalsPaused(false);
-          setIsCenteringWithSpring(false);
-        }
-      }
-    }
-    
-    lastActiveNodeId.current = activeNodeId;
-  }, [activeNodeId, nodes, dimensions, scale, animationTime, uiMode]);
 
-  // Continuously track the active node's position as it rotates (smooth following)
+  const {
+    nodes,
+    setUIMode,
+    activeNodeId,
+    hoveredNodeId,
+    focusedNodeId,
+    uiMode,
+    clearFocus,
+  } = useSkillTreeStore();
+
+  const isMobile = useIsMobile();
+
+  // Layout is locked: the vertical stack on mobile, the constellation on desktop.
   useEffect(() => {
-    // Don't track during centering, if orbitals are paused, if no active node, or no stage
-    if (isCenteringWithSpring || isOrbitalsPaused || !activeNodeId || !stageRef.current) return;
-    
-    // In static mode, don't continuously track since nodes don't move
-    if (uiMode === 'static') return;
-    
-    const activeNode = nodes.find(node => node.id === activeNodeId);
-    if (!activeNode) return;
-    
-    // Only track moving nodes (level 1 and 2), center node stays fixed
-    if (activeNode.level === 0) return;
-    
-    const centerX = dimensions.width / 2;
-    const centerY = dimensions.height / 2;
-    
-    // Get the current position based on UI mode (for smooth following)
-    const currentPosition = uiMode === 'orbital' 
-      ? getOrbitalPosition(activeNode, centerX, centerY, scale, animationTime)
-      : getStaticPosition(activeNode, centerX, centerY, scale);
-    
-    // Calculate the new stage position for continuous tracking
-    const newPos = {
-      x: centerX - currentPosition.x,
-      y: centerY - currentPosition.y,
-    };
-    
-    // Update the Konva stage directly for smooth real-time tracking
-    const stage = stageRef.current.getStage();
-    if (stage) {
-      stage.position(newPos);
-      stage.batchDraw();
-    }
-    
-    // Don't update the spring value during tracking to avoid conflicts
-  }, [animationTime, activeNodeId, nodes, dimensions, scale, isCenteringWithSpring, isOrbitalsPaused, uiMode]); // Update every frame
-  
-  // Handle responsive sizing
+    setUIMode(isMobile ? 'mobile' : 'new');
+  }, [isMobile, setUIMode]);
+
+  // Latest render values, read inside the focus effect without re-subscribing it
+  // to every change (so the else-branch zoom-out doesn't fire spuriously).
+  const latest = useRef({ nodes, scale, dimensions, uiMode });
+  latest.current = { nodes, scale, dimensions, uiMode };
+
+  // Responsive sizing
   useEffect(() => {
     const updateDimensions = () => {
-      if (containerRef.current) {
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        
-        setDimensions({ width, height });
-        setCanvasSize({ width, height });
-        
-        // Calculate scale based on available space
-        const minDimension = Math.min(width, height);
-        setScale(Math.min(1, minDimension / 460));
-      }
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
     };
-    
     updateDimensions();
     window.addEventListener('resize', updateDimensions);
-    
     return () => window.removeEventListener('resize', updateDimensions);
-  }, [setCanvasSize]);
+  }, []);
 
-  // Animation loop for orbital rotation
+  // Fit the layout to the viewport. Desktop: shrink the constellation so its
+  // outermost node bodies (+ labels) always stay on screen. Mobile: size the
+  // stacked bodies to the viewport width.
   useEffect(() => {
-    if (uiMode === 'static') return; // Don't animate in static mode
-    
-    const animate = () => {
-      setAnimationTime(Date.now());
-      requestAnimationFrame(animate);
-    };
-    const animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
-  }, [uiMode]);
-
-  // Handle UI mode changes - re-center active node when switching modes
-  const prevUIMode = useRef(uiMode);
-  useEffect(() => {
-    if (prevUIMode.current !== uiMode && activeNodeId && stageRef.current) {
-      const activeNode = nodes.find(node => node.id === activeNodeId);
-      if (activeNode) {
-        const centerX = dimensions.width / 2;
-        const centerY = dimensions.height / 2;
-        
-        // Get the current position in the new UI mode
-        const currentPosition = uiMode === 'orbital' 
-          ? getOrbitalPosition(activeNode, centerX, centerY, scale, animationTime)
-          : getStaticPosition(activeNode, centerX, centerY, scale);
-        
-        // Re-center the stage on the active node in its new position
-        stageRef.current.centerOn(currentPosition.x, currentPosition.y);
-      }
-      prevUIMode.current = uiMode;
+    const { width, height } = dimensions;
+    if (isMobile) {
+      setScale(Math.min(1, width / 460));
+      return;
     }
-  }, [uiMode, activeNodeId, nodes, dimensions.width, dimensions.height, scale, animationTime]);
-  
+    const { maxX, maxY } = getConstellationExtent();
+    const fit = Math.min(
+      1,
+      (width / 2 - FIT_MARGIN) / maxX,
+      (height / 2 - FIT_MARGIN) / maxY
+    );
+    setScale(Math.max(0.35, fit));
+  }, [dimensions, isMobile]);
+
+  // Camera: zoom into the focused node, or back out to the whole universe.
+  // Desktop only — on mobile a focused node opens a full-screen modal instead,
+  // and the tall vertical canvas must not be transformed.
+  useEffect(() => {
+    if (isMobile) return;
+    if (!stageRef.current) return;
+    const { nodes, scale, dimensions } = latest.current;
+    const centerX = dimensions.width / 2;
+    const centerY = dimensions.height / 2;
+
+    if (focusedNodeId) {
+      const node = nodes.find((n) => n.id === focusedNodeId);
+      if (!node) return;
+      const pos = getConstellationPosition(node, centerX, centerY, scale);
+      // Land the node in the middle of the right 75% (left 25% holds the panel).
+      stageRef.current.zoomTo(
+        pos.x,
+        pos.y,
+        FOCUS_SCALE,
+        0.9,
+        dimensions.width * FOCUS_SCREEN_X,
+        dimensions.height / 2
+      );
+    } else {
+      stageRef.current.zoomTo(centerX, centerY, 1, 0.9);
+    }
+  }, [focusedNodeId, isMobile]);
+
   const centerX = dimensions.width / 2;
   const centerY = dimensions.height / 2;
-  
-  // Determine cursor style based on hover state
+
+  // Mobile: nodes stack down a tall, scrollable canvas. `contentTop` is fed to
+  // the shared position fns via the `centerY` slot.
+  const mobileContentTop = getMobileContentTop(scale);
+  const stageHeight = isMobile ? getMobileContentHeight(scale) : dimensions.height;
+  const nodeCenterY = isMobile ? mobileContentTop : centerY;
+
+  // Desktop: clicking empty space backs out of a focused node. On mobile the
+  // full-screen modal covers the canvas and its ✕ is the way out.
+  const handleBackgroundClick = React.useCallback(() => {
+    if (!isMobile && focusedNodeId) clearFocus();
+  }, [isMobile, focusedNodeId, clearFocus]);
+
   const getCursorStyle = () => {
-    // If hovering over the currently active node, show special cursor
     if (hoveredNodeId && hoveredNodeId === activeNodeId) {
-      return `url(${rocketHoverCursor}) 16 16, pointer`; // 16,16 is hotspot center for 32x32 image
+      return 'pointer';
     }
-    // Default rocket cursor
-    return `url(${rocketCursor}) 16 16, auto`;
+    return 'auto';
   };
-  
+
   return (
     <motion.div
       ref={containerRef}
-      className="fixed inset-0 w-screen h-screen overflow-hidden"
+      className="fixed inset-0 w-screen h-screen"
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100vw',
         height: '100vh',
-        overflow: 'hidden',
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover', // Cover the entire viewport
-        backgroundPosition: 'center center', // Center the image
-        backgroundRepeat: 'no-repeat', // Don't repeat the image
-        imageRendering: 'pixelated', // Maintain pixel art quality
+        overflowX: 'hidden',
+        overflowY: isMobile ? 'auto' : 'hidden',
+        backgroundColor: '#000000',
         margin: 0,
         padding: 0,
-        cursor: getCursorStyle(), // Apply custom cursor
+        cursor: getCursorStyle(),
       }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
     >
-      <ZoomPanStage ref={stageRef} width={dimensions.width} height={dimensions.height}>
-        <Layer>
-          {/* Conditional rendering based on UI mode */}
-          {uiMode === 'orbital' && (
-            <OrbitalCircles 
-              centerX={centerX} 
-              centerY={centerY} 
-              scale={scale}
-            />
-          )}
-          
-          {uiMode === 'static' && (
-            <ConnectionLines
-              centerX={centerX}
-              centerY={centerY}
-              scale={scale}
-            />
-          )}
-          
-          {/* Skill nodes */}
-          {nodes.map((node) => (
-            <SkillNode
-              key={node.id}
-              node={node}
-              centerX={centerX}
-              centerY={centerY}
-              scale={scale}
-              animationTime={isOrbitalsPaused ? pausedAnimationTime.current : animationTime}
-            />
-          ))}
-        </Layer>
-      </ZoomPanStage>
-      
-      {/* Overlay UI for active node details - hide when modal is open */}
-      {!isDetailModalOpen && <ActiveNodePanel />}
+      {/* Animated ASCII nebula (behind everything, stays fixed while scrolling) */}
+      <AsciiBackground />
 
-      {/* UI Mode Toggle */}
-      <UIToggle />
+      {/* Konva stage (planets) — above the background */}
+      <div style={{ position: 'relative', zIndex: 2 }}>
+        <ZoomPanStage
+          ref={stageRef}
+          width={dimensions.width}
+          height={stageHeight}
+          interactive={false}
+          onBackgroundClick={handleBackgroundClick}
+        >
+          <Layer>
+            {uiMode === 'new' && !focusedNodeId && (
+              <ConstellationLines centerX={centerX} centerY={centerY} scale={scale} />
+            )}
 
-      {/* Detail Modal */}
-      <DetailModal
-        isOpen={isDetailModalOpen}
-        nodeData={detailModalNodeId ? nodes.find(n => n.id === detailModalNodeId)?.portfolioData || null : null}
-        onClose={closeDetailModal}
-      />
-    </motion.div>
-  );
-};
+            {uiMode === 'mobile' && (
+              <MobileLines centerX={centerX} contentTop={mobileContentTop} scale={scale} />
+            )}
 
-// Component for displaying active node information
-const ActiveNodePanel: React.FC = () => {
-  const { nodes, activeNodeId } = useSkillTreeStore();
-  const activeNode = nodes.find(node => node.id === activeNodeId);
-  
-  if (!activeNode) return null;
-  
-  // Use min-content width and keep panel in the top left corner
-  const panelStyle = {
-    position: 'absolute' as const,
-    top: '24px',
-    left: '24px',
-    zIndex: 1000,
-    maxWidth: '95vw',
-    width: 'min-content',
-    minWidth: '200px',
-  };
+            {nodes.map((node) => (
+              <SkillNode
+                key={node.id}
+                node={node}
+                centerX={centerX}
+                centerY={nodeCenterY}
+                scale={scale}
+              />
+            ))}
+          </Layer>
+        </ZoomPanStage>
+      </div>
 
-  return (
-    <motion.div
-      style={panelStyle}
-      className="p-3 sm:p-6 text-green-400 shadow-2xl font-pixelify rounded-lg w-fit max-w-[95vw]"
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <h3 className="text-lg sm:text-2xl font-medium text-white mb-2 tracking-wider uppercase underline underline-offset-4 break-words">
-        {activeNode.label}
-      </h3>
-      {activeNode.description && (
-        <p className="text-green-300 text-sm sm:text-md mb-2 leading-relaxed break-words">
-          {activeNode.description}
-        </p>
-      )}
-      <p className="text-xs sm:text-xs text-green-500 uppercase tracking-wide">LEVEL {activeNode.level} NODE</p>
+      {/* Focused-node details: left panel on desktop, full-screen on mobile */}
+      {isMobile ? <MobileNodeModal /> : <NodeInfoCard />}
     </motion.div>
   );
 };

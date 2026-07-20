@@ -3,12 +3,25 @@
 @tailwind utilities;
 
 @layer base {
-  /* :root {
-    font-family: "PT Sans", sans-serif;
-  } */
+  :root {
+    font-family: "PT Mono", monospace;
+    font-weight: 300;
+  }
 
   * {
     box-sizing: border-box;
+  }
+
+  /* Body/UI text is a thin monospace code font everywhere */
+  body {
+    font-family: "PT Mono", monospace;
+    font-weight: 300;
+  }
+
+  /* Headers: tall, thick serif, ALL CAPS */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif uppercase;
+    letter-spacing: 0.02em;
   }
 
   html,
@@ -78,11 +91,10 @@
     -ms-interpolation-mode: nearest-neighbor;
   }
 
-  /* Disable all anti-aliasing and smoothing */
+  /* Standard text rendering for modern fonts */
   * {
-    -webkit-font-smoothing: none;
-    -moz-osx-font-smoothing: unset;
-    font-smooth: never;
-    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
