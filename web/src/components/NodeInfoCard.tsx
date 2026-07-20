@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSkillTreeStore } from '../store/skillTreeStore';
 import type { PortfolioNodeData } from '../types/portfolioTypes';
-import resumePdf from '../assets/firasaj_resume_jun26 (2).pdf';
+import resumePdf from '../assets/firasaj_resume_jun26.pdf';
 
 interface CardLink {
   label: string;
